@@ -6,6 +6,7 @@ import {
     DialogHeader,
 } from '@/components/ui/dialog';
 import { useTours, type Tour } from '../context/TourContext';
+import { whatsappUrl } from '@/constants/contact';
 
 const Tours = () => {
     const { tours } = useTours();
@@ -55,7 +56,7 @@ const Tours = () => {
 
     const generateWhatsAppLink = (tour: Tour) => {
         const message = `Olá! Gostaria de reservar o passeio "${tour.title}" para o dia ${tour.date}.`;
-        return `https://wa.me/5511999999999?text=${encodeURIComponent(message)}`;
+        return whatsappUrl(message);
     };
 
     return (
@@ -195,31 +196,38 @@ const Tours = () => {
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
 
-                                {/* Navigation Arrows */}
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); prevImage(); }}
-                                    className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 text-[#365A38] rounded-full flex items-center justify-center shadow-lg hover:bg-white hover:scale-110 transition-all z-10"
-                                >
-                                    <ChevronLeft className="w-6 h-6" />
-                                </button>
-                                <button
-                                    onClick={(e) => { e.stopPropagation(); nextImage(); }}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 text-[#365A38] rounded-full flex items-center justify-center shadow-lg hover:bg-white hover:scale-110 transition-all z-10"
-                                >
-                                    <ChevronRight className="w-6 h-6" />
-                                </button>
-
-                                {/* Image Indicators */}
-                                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-                                    {selectedTour.images.map((_, idx) => (
+                                {/* Navigation Arrows - apenas quando há mais de 1 imagem */}
+                                {selectedTour.images.length > 1 && (
+                                    <>
                                         <button
-                                            key={idx}
-                                            onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(idx); }}
-                                            className={`w-2 h-2 rounded-full transition-all ${idx === currentImageIndex ? 'bg-white w-6' : 'bg-white/50'
-                                                }`}
-                                        />
-                                    ))}
-                                </div>
+                                            onClick={(e) => { e.stopPropagation(); prevImage(); }}
+                                            className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 text-[#365A38] rounded-full flex items-center justify-center shadow-lg hover:bg-white hover:scale-110 transition-all z-10"
+                                            aria-label="Imagem anterior"
+                                        >
+                                            <ChevronLeft className="w-6 h-6" />
+                                        </button>
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); nextImage(); }}
+                                            className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 text-[#365A38] rounded-full flex items-center justify-center shadow-lg hover:bg-white hover:scale-110 transition-all z-10"
+                                            aria-label="Próxima imagem"
+                                        >
+                                            <ChevronRight className="w-6 h-6" />
+                                        </button>
+
+                                        {/* Image Indicators */}
+                                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                                            {selectedTour.images.map((_, idx) => (
+                                                <button
+                                                    key={idx}
+                                                    onClick={(e) => { e.stopPropagation(); setCurrentImageIndex(idx); }}
+                                                    className={`w-2 h-2 rounded-full transition-all ${idx === currentImageIndex ? 'bg-white w-6' : 'bg-white/50'
+                                                        }`}
+                                                    aria-label={`Imagem ${idx + 1}`}
+                                                />
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
 
                                 {/* Title Overlay */}
                                 {/* Title Overlay REMOVED */}

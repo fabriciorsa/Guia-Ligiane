@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { MessageCircle, Clock, Phone, MapPin } from 'lucide-react';
+import { CONTACT, whatsappUrl } from '@/constants/contact';
 
 const CTA = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -24,9 +25,9 @@ const CTA = () => {
   }, []);
 
   const contactInfo = [
-    { icon: Clock, text: 'Atendimento: 8h às 18h' },
-    { icon: Phone, text: '(11) 99999-9999' },
-    { icon: MapPin, text: 'Ilhas Paradisíacas, Brasil' },
+    { icon: Clock, text: CONTACT.businessHours },
+    { icon: Phone, text: CONTACT.whatsappFormatted },
+    { icon: MapPin, text: CONTACT.address },
   ];
 
   return (
@@ -89,7 +90,7 @@ const CTA = () => {
             style={{ transitionDelay: '400ms' }}
           >
             <a
-              href="https://wa.me/5511999999999?text=Olá!%20Gostaria%20de%20saber%20mais%20sobre%20os%20passeios%20disponíveis."
+              href={whatsappUrl('Olá! Gostaria de saber mais sobre os passeios disponíveis.')}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-3 px-10 py-5 bg-[#25D366] text-white text-lg font-bold rounded-xl transition-all duration-300 hover:bg-[#128C7E] hover:scale-105 hover:shadow-2xl animate-pulse-glow"

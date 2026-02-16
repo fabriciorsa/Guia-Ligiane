@@ -1,0 +1,12 @@
+Para voltar à versão anterior (antes das melhorias de 12/02/2025):
+
+  git log --oneline
+  (copie o hash do commit "Versão anterior às melhorias...")
+
+  git reset --hard <hash-do-commit-anterior>
+
+Ou, se o commit anterior for o primeiro da lista após "melhorias":
+
+  git reset --hard HEAD~1
+
+Isso restaura todos os arquivos ao estado antes das alterações.

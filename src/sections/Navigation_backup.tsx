@@ -57,8 +57,8 @@ const Navigation = ({ scrollY }: NavigationProps) => {
             className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${scrollY > 50 || !isHome
                 ? 'bg-white/95 backdrop-blur-lg shadow-sm py-3'
                 : isMobileMenuOpen
-                    ? 'bg-white/98 backdrop-blur-lg shadow-sm py-3'
-                    : 'bg-transparent py-6'
+                ? 'bg-white/98 backdrop-blur-lg shadow-sm py-3'
+                : 'bg-transparent py-6'
                 }`}
         >
             <div className="container mx-auto px-4 md:px-6 flex justify-between items-center">
@@ -91,68 +91,76 @@ const Navigation = ({ scrollY }: NavigationProps) => {
             </div>
 
             {/* Mobile Menu Modal */}
-            {/* Mobile Menu Modal (Robust Implementation) */}
             {isMobileMenuOpen && (
-                <div className="md:hidden fixed inset-0 z-[9999] flex items-center justify-center p-4">
-                    {/* Backdrop - High Contrast */}
+                <>
+                    {/* Backdrop com blur suave */}
                     <div
-                        className="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
+                        className="md:hidden fixed inset-0 bg-black/40 backdrop-blur-md z-[60] animate-fade-in"
                         onClick={() => setIsMobileMenuOpen(false)}
                     />
 
-                    {/* Modal Content - Opaque White Card */}
-                    <div className="relative bg-white w-full max-w-sm rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-fade-in ring-1 ring-black/5">
-
-                        {/* Header */}
-                        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 bg-gray-50/50">
+                    {/* Modal branco estilizado - melhor posicionamento */}
+                    <div className="md:hidden fixed inset-x-4 top-24 bottom-4 bg-white rounded-3xl shadow-2xl z-[70] flex flex-col overflow-hidden animate-scale-in border border-[#E8E0D5]/50">
+                        {/* Header do Modal */}
+                        <div className="flex items-center justify-between px-6 py-4 border-b-2 border-[#E8E0D5] bg-white">
                             <div className="flex items-center gap-3">
-                                <span className="w-1.5 h-6 bg-[#365A38] rounded-full"></span>
-                                <span className="text-[#2C2416] font-bold text-xl tracking-tight">Navegação</span>
+                                <img
+                                    src="/images/logo-hd.webp"
+                                    alt="Logo Trilhas de Sergipe"
+                                    className="h-10 w-auto object-contain"
+                                />
+                                <span className="text-[#2C2416] font-bold text-lg">Menu</span>
                             </div>
                             <button
                                 onClick={() => setIsMobileMenuOpen(false)}
-                                className="p-2 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                                className="p-2 text-[#2C2416] hover:bg-[#F5F0E8] rounded-full transition-all duration-200 hover:rotate-90 active:scale-95"
+                                aria-label="Fechar menu"
                             >
-                                <X className="w-6 h-6" />
+                                <X className="w-5 h-5" />
                             </button>
                         </div>
 
-                        {/* Navigation Links */}
-                        <nav className="flex flex-col p-4 gap-2 overflow-y-auto max-h-[60vh]">
-                            {navLinks.map((link) => {
-                                const Icon = link.icon;
-                                return (
-                                    <button
-                                        key={link.name}
-                                        onClick={() => handleNavClick(link.href)}
-                                        className="flex items-center gap-4 px-4 py-4 rounded-xl text-left hover:bg-[#F5F0E8] group transition-all duration-200"
-                                    >
-                                        <div className="p-2 bg-gray-100 rounded-lg group-hover:bg-white group-hover:shadow-md transition-all duration-200">
-                                            <Icon className="w-5 h-5 text-[#C68D5D] group-hover:text-[#365A38]" />
-                                        </div>
-                                        <span className="text-[#2C2416] font-bold text-lg">{link.name}</span>
-                                        <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity text-[#365A38]">
-                                            →
-                                        </div>
-                                    </button>
-                                );
-                            })}
-                        </nav>
+                        {/* Conteúdo do Modal - Opções do Navbar */}
+                        <div className="flex-1 flex flex-col px-6 py-6 overflow-y-auto">
+                            <nav className="flex flex-col gap-2">
+                                {navLinks.map((link) => {
+                                    const Icon = link.icon;
+                                    return (
+                                        <button
+                                            key={link.name}
+                                            onClick={() => handleNavClick(link.href)}
+                                            className="group flex items-center gap-4 text-[#2C2416] font-bold text-base uppercase tracking-wider py-4 px-5 rounded-xl hover:bg-[#F5F0E8] hover:text-[#365A38] transition-all duration-200 active:scale-[0.98]"
+                                        >
+                                            <div className="p-2.5 bg-[#F5F0E8] rounded-lg group-hover:bg-[#365A38] transition-colors duration-200">
+                                                <Icon className="w-5 h-5 text-[#C68D5D] group-hover:text-white transition-colors duration-200" />
+                                            </div>
+                                            <span className="flex-1 text-left">{link.name}</span>
+                                        </button>
+                                    );
+                                })}
+                            </nav>
 
-                        {/* Footer / CTA */}
-                        <div className="p-6 border-t border-gray-100 bg-gray-50">
+                            {/* Separador */}
+                            <div className="flex items-center gap-3 my-6">
+                                <div className="flex-1 h-px bg-[#E8E0D5]"></div>
+                                <div className="w-1.5 h-1.5 bg-[#C68D5D] rounded-full"></div>
+                                <div className="flex-1 h-px bg-[#E8E0D5]"></div>
+                            </div>
+
+                            {/* Botão CTA WhatsApp */}
                             <a
-                                href={whatsappUrl('Olá! Vim pelo site e gostaria de saber sobre os passeios.')}
+                                href={whatsappUrl('Olá! Gostaria de reservar um passeio.')}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center justify-center gap-3 w-full bg-[#25D366] hover:bg-[#128C7E] text-white px-6 py-4 rounded-xl font-bold text-lg shadow-lg active:scale-95 transition-all"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="flex items-center justify-center gap-3 bg-[#25D366] text-white px-6 py-4 rounded-xl font-bold text-base shadow-lg active:scale-95 transition-all duration-200 hover:bg-[#128C7E] hover:shadow-xl"
                             >
-                                <MessageCircle className="w-6 h-6" />
-                                Reservar Agora
+                                <MessageCircle className="w-5 h-5" />
+                                <span>Reservar no WhatsApp</span>
                             </a>
                         </div>
                     </div>
-                </div>
+                </>
             )}
         </header>
     );

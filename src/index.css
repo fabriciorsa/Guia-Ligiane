@@ -125,6 +125,10 @@
     animation: pulse-glow 3s ease-in-out infinite;
   }
 
+  .animate-pulse-slow {
+    animation: pulse-glow 5s ease-in-out infinite;
+  }
+
   .animate-boat-rock {
     animation: boat-rock 5s ease-in-out infinite;
   }

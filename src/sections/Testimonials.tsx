@@ -9,7 +9,7 @@ const testimonials = [
     role: 'São Paulo, SP',
     avatar: 'MS',
     rating: 5,
-    text: 'A experiência com a Ligiane Tour foi transformadora. Não foi apenas um passeio, foi um mergulho profundo na beleza natural da ilha com um atendimento impecável.',
+    text: 'A experiência com a Trilhas de Sergipe foi transformadora. Não foi apenas um passeio, foi um mergulho profundo na beleza natural da ilha com um atendimento impecável.',
   },
   {
     id: 2,

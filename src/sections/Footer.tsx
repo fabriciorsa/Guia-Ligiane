@@ -1,10 +1,11 @@
 import { Anchor, Instagram, Facebook, MessageCircle, Mail, MapPin, Phone } from 'lucide-react';
+import { CONTACT, whatsappUrl } from '@/constants/contact';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   const quickLinks = [
-    { name: 'Home', href: '#home' },
+    { name: 'Início', href: '#inicio' },
     { name: 'Passeios', href: '#passeios' },
     { name: 'Galeria', href: '#galeria' },
     { name: 'Sobre', href: '#sobre' },
@@ -19,7 +20,7 @@ const Footer = () => {
   const socialLinks = [
     { icon: Instagram, href: '#', label: 'Instagram' },
     { icon: Facebook, href: '#', label: 'Facebook' },
-    { icon: MessageCircle, href: 'https://wa.me/5511999999999', label: 'WhatsApp' },
+    { icon: MessageCircle, href: whatsappUrl(), label: 'WhatsApp' },
   ];
 
   const scrollToSection = (href: string) => {
@@ -54,13 +55,17 @@ const Footer = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
           {/* Brand Column */}
           <div className="lg:col-span-1">
-            <a href="#home" className="flex items-center gap-2 mb-4 group">
+            <a
+              href="#inicio"
+              onClick={(e) => { e.preventDefault(); scrollToSection('#inicio'); }}
+              className="flex items-center gap-2 mb-4 group"
+            >
               <Anchor className="w-8 h-8 text-[#A68B6A] transition-transform duration-300 group-hover:rotate-12" />
-              <span className="text-2xl font-bold font-['Montserrat']">Ilha Tour</span>
+              <span className="text-2xl font-bold font-['Montserrat']">{CONTACT.brandName}</span>
             </a>
             <p className="text-white/70 text-sm leading-relaxed mb-6">
               Criando memórias que duram para sempre. Há mais de 10 anos conectando
-              pessoas com a natureza em sua forma mais pura.
+              pessoas com a natureza em sua forma mais pura em Sergipe.
             </p>
 
             {/* Social Links */}
@@ -125,26 +130,25 @@ const Footer = () => {
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-[#A68B6A] flex-shrink-0 mt-0.5" />
                 <span className="text-white/70 text-sm">
-                  Ilhas Paradisíacas<br />
-                  Brasil
+                  {CONTACT.address}
                 </span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-[#A68B6A] flex-shrink-0" />
                 <a
-                  href="tel:+5511999999999"
+                  href={`tel:+${CONTACT.whatsapp.replace(/\D/g, '')}`}
                   className="text-white/70 text-sm hover:text-[#A68B6A] transition-colors"
                 >
-                  (11) 99999-9999
+                  {CONTACT.whatsappFormatted}
                 </a>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-[#A68B6A] flex-shrink-0" />
                 <a
-                  href="mailto:contato@ilhatour.com.br"
+                  href={`mailto:${CONTACT.email}`}
                   className="text-white/70 text-sm hover:text-[#A68B6A] transition-colors"
                 >
-                  contato@ilhatour.com.br
+                  {CONTACT.email}
                 </a>
               </li>
             </ul>
@@ -157,7 +161,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-white/50 text-sm text-center md:text-left">
-            © {currentYear} Ilha Tour. Todos os direitos reservados.
+            © {currentYear} {CONTACT.brandName}. Todos os direitos reservados.
           </p>
           <p className="text-white/50 text-sm flex items-center gap-1">
             Desenvolvido com <span className="text-red-400">♥</span> para aventureiros

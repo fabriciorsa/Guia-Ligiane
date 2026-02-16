@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { ArrowRight, MapPin, Sailboat } from 'lucide-react';
+import { whatsappUrl } from '@/constants/contact';
 
 const Hero = () => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const images = [
         "/images/barco_na_pomonga.png",
-        "/images/tour-boat-1.webp" // Falback to existing image since generation failed
+        "/images/tour-boat-1.webp" // Fallback to existing image since generation failed
     ];
 
     useEffect(() => {
@@ -33,7 +34,7 @@ const Hero = () => {
                     <img
                         src={img}
                         alt={`Passeio de Barco em Sergipe ${index + 1}`}
-                        className={`w-full h-full object-cover object-[50%_75%] transition-transform duration-[10000ms] ease-linear ${index === currentImageIndex ? 'scale-115' : 'scale-100'}`}
+                        className={`w-full h-full object-cover object-[50%_75%] transition-transform duration-[10000ms] ease-linear ${index === currentImageIndex ? 'scale-[1.15]' : 'scale-100'}`}
                     />
                     <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black/90" />
                 </div>
@@ -66,9 +67,9 @@ const Hero = () => {
                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </button>
                     <a
-                        href="https://wa.me/5598992265003"
+                        href={whatsappUrl()}
                         target="_blank"
-                        rel="noreferrer"
+                        rel="noopener noreferrer"
                         className="w-full sm:w-auto px-8 py-4 rounded-full font-bold text-lg border-2 border-white text-white hover:bg-white hover:text-[#2C2416] transition-all shadow-lg hover:shadow-xl backdrop-blur-sm flex items-center justify-center"
                     >
                         Falar no WhatsApp
