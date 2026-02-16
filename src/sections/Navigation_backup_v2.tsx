@@ -93,15 +93,15 @@ const Navigation = ({ scrollY }: NavigationProps) => {
             {/* Mobile Menu Modal */}
             {/* Mobile Menu Modal (Robust Implementation) */}
             {isMobileMenuOpen && (
-                <div className="md:hidden fixed inset-0 z-[9999] flex items-end justify-center p-4 pb-6">
+                <div className="md:hidden fixed inset-0 z-[9999] flex items-center justify-center p-4">
                     {/* Backdrop - High Contrast */}
                     <div
                         className="absolute inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
                         onClick={() => setIsMobileMenuOpen(false)}
                     />
 
-                    {/* Modal Content - Opaque White Card at Bottom */}
-                    <div className="relative bg-white w-full max-w-sm rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-slide-up ring-1 ring-black/5">
+                    {/* Modal Content - Opaque White Card */}
+                    <div className="relative bg-white w-full max-w-sm rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-fade-in ring-1 ring-black/5">
 
                         {/* Header */}
                         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 bg-gray-50/50">
