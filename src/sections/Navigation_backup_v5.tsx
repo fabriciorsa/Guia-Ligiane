@@ -92,63 +92,54 @@ const Navigation = ({ scrollY }: NavigationProps) => {
                 </div>
             </header>
 
-            {/* Mobile Menu - Compact Bottom Sheet (Auto Height) */}
+            {/* Mobile Menu - Full Screen White Overlay (Moved outside Header for Safety) */}
             {isMobileMenuOpen && (
-                <div className="md:hidden fixed inset-0 z-[9999] flex items-end justify-center">
-                    {/* Backdrop */}
-                    <div
-                        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                    />
+                <div className="md:hidden fixed inset-0 z-[9999] bg-white animate-fade-in flex flex-col h-[100dvh] w-screen overflow-hidden">
 
-                    {/* Menu Content - Auto Height & Bottom Aligned */}
-                    <div className="relative bg-white w-full rounded-t-3xl shadow-2xl flex flex-col animate-slide-up max-h-[80vh]">
-
-                        {/* Header */}
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
-                            <div className="flex items-center gap-3">
-                                <span className="w-1.5 h-5 bg-[#365A38] rounded-full"></span>
-                                <span className="text-[#2C2416] font-bold text-lg">Menu</span>
-                            </div>
-                            <button
-                                onClick={() => setIsMobileMenuOpen(false)}
-                                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                            >
-                                <X className="w-6 h-6" />
-                            </button>
+                    {/* Header inside Modal */}
+                    <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
+                        <div className="flex items-center gap-3">
+                            <span className="w-1.5 h-6 bg-[#365A38] rounded-full"></span>
+                            <span className="text-[#2C2416] font-bold text-xl tracking-tight">Menu</span>
                         </div>
+                        <button
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className="p-3 text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                        >
+                            <X className="w-8 h-8" />
+                        </button>
+                    </div>
 
-                        {/* Navigation Links - Compact List */}
-                        <nav className="flex flex-col p-2 overflow-y-auto">
-                            {navLinks.map((link) => {
-                                const Icon = link.icon;
-                                return (
-                                    <button
-                                        key={link.name}
-                                        onClick={() => handleNavClick(link.href)}
-                                        className="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-[#F5F0E8] group transition-all duration-200"
-                                    >
-                                        <div className="p-2 bg-gray-50 rounded-lg group-hover:bg-white group-hover:shadow-sm transition-all duration-200">
-                                            <Icon className="w-5 h-5 text-[#C68D5D] group-hover:text-[#365A38]" />
-                                        </div>
-                                        <span className="text-[#2C2416] font-bold text-lg text-left">{link.name}</span>
-                                    </button>
-                                );
-                            })}
-                        </nav>
+                    {/* Navigation Links - Centered & Large */}
+                    <nav className="flex-1 flex flex-col justify-center px-8 gap-4 overflow-y-auto">
+                        {navLinks.map((link) => {
+                            const Icon = link.icon;
+                            return (
+                                <button
+                                    key={link.name}
+                                    onClick={() => handleNavClick(link.href)}
+                                    className="flex items-center gap-6 px-4 py-4 rounded-2xl hover:bg-[#F5F0E8] group transition-all duration-200 shrink-0"
+                                >
+                                    <div className="p-3 bg-gray-50 rounded-xl group-hover:bg-white group-hover:shadow-md transition-all duration-200">
+                                        <Icon className="w-6 h-6 text-[#C68D5D] group-hover:text-[#365A38]" />
+                                    </div>
+                                    <span className="text-[#2C2416] font-bold text-2xl text-left">{link.name}</span>
+                                </button>
+                            );
+                        })}
+                    </nav>
 
-                        {/* Footer / CTA - Compact */}
-                        <div className="p-4 border-t border-gray-100 bg-gray-50 pb-8 shrink-0">
-                            <a
-                                href={whatsappUrl('Olá! Vim pelo site e gostaria de saber sobre os passeios.')}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center justify-center gap-2 w-full bg-[#25D366] hover:bg-[#128C7E] text-white px-4 py-3 rounded-xl font-bold text-lg shadow-md active:scale-95 transition-all"
-                            >
-                                <MessageCircle className="w-5 h-5" />
-                                Reservar Agora
-                            </a>
-                        </div>
+                    {/* Footer / CTA */}
+                    <div className="p-8 border-t border-gray-100 bg-gray-50 shrink-0">
+                        <a
+                            href={whatsappUrl('Olá! Vim pelo site e gostaria de saber sobre os passeios.')}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-center gap-3 w-full bg-[#25D366] hover:bg-[#128C7E] text-white px-6 py-5 rounded-2xl font-bold text-xl shadow-lg active:scale-95 transition-all"
+                        >
+                            <MessageCircle className="w-7 h-7" />
+                            Reservar Agora
+                        </a>
                     </div>
                 </div>
             )}
