@@ -281,23 +281,26 @@
   animation: gradient-shift 15s ease infinite;
 }
 
-/* Scrollbar Styling */
+/* Scrollbar Styling - High Visibility */
 ::-webkit-scrollbar {
-  width: 8px;
-  background: transparent;
+  width: 12px;
+  background: #F5F0E8;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--brand-beige);
+  background: #E8E0D5;
+  border-left: 1px solid #dcdcdc;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--brand-brown);
-  border-radius: 4px;
+  background: #8B6F4E;
+  border-radius: 6px;
+  border: 2px solid #E8E0D5;
+  /* Creates padding effect */
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--brand-green);
+  background: #365A38;
 }
 
 /* Reduced Motion */

@@ -21,13 +21,20 @@ const Navigation = ({ scrollY }: NavigationProps) => {
     // Texto Escuro: #2C2416
 
     const renderLogo = () => (
-        <Link to="/" className="flex items-center gap-3 group">
+        <a
+            href="#inicio"
+            onClick={(e) => {
+                e.preventDefault();
+                handleNavClick('#inicio');
+            }}
+            className="flex items-center gap-3 group cursor-pointer"
+        >
             <img
                 src="/images/logo-hd.webp"
                 alt="Logo Trilhas de Sergipe"
                 className="h-16 md:h-24 w-auto object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-md"
             />
-        </Link>
+        </a>
     );
 
     const navLinks = [

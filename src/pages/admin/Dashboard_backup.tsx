@@ -357,10 +357,10 @@ const Dashboard = () => {
             {isEditing && (
                 <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
                     {/* Main Container */}
-                    <div className="bg-[#F5F0E8] w-full h-full sm:h-[90vh] sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden relative">
+                    <div className="bg-[#F5F0E8] w-full h-full sm:h-auto sm:max-h-[95vh] sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden relative">
 
                         {/* 1. Header Fixed */}
-                        <div className="bg-white border-b border-[#E8E0D5] px-4 py-3 lg:px-6 lg:py-4 flex justify-between items-center shrink-0 z-50 relative shadow-sm">
+                        <div className="bg-white border-b border-[#E8E0D5] px-4 py-3 lg:px-6 lg:py-4 flex justify-between items-center shrink-0 z-20">
                             <div>
                                 <h2 className="text-lg lg:text-xl font-bold text-[#2C2416]">Editor de Passeio</h2>
                                 <p className="text-xs text-[#8B6F4E] hidden sm:block">Você está editando: {editForm.title}</p>
@@ -409,9 +409,9 @@ const Dashboard = () => {
                         <div className="flex-1 flex overflow-hidden relative min-h-0">
 
                             {/* LEFT: Form Editor */}
-                            <div className={`w-full lg:w-1/2 h-full overflow-y-auto custom-scrollbar bg-white border-r border-[#E8E0D5] ${activeTab === 'edit' ? 'block' : 'hidden lg:block'
+                            <div className={`w-full lg:w-1/2 h-full overflow-y-auto bg-white border-r border-[#E8E0D5] ${activeTab === 'edit' ? 'block' : 'hidden lg:block'
                                 }`}>
-                                <div className="p-5 lg:p-8 max-w-3xl mx-auto space-y-8 pb-40 lg:pb-32">
+                                <div className="p-5 lg:p-8 max-w-3xl mx-auto space-y-8 pb-32 lg:pb-10">
 
                                     {/* Info Básica */}
                                     <div className="space-y-4">
@@ -603,20 +603,20 @@ const Dashboard = () => {
                             </div>
 
                             {/* RIGHT: Live Preview */}
-                            <div className={`w-full lg:w-1/2 h-full overflow-y-auto custom-scrollbar bg-[#E8E0D5]/30 p-4 lg:p-8 ${activeTab === 'preview' ? 'block' : 'hidden lg:block'
+                            <div className={`w-full lg:w-1/2 h-full overflow-y-auto bg-[#E8E0D5]/30 flex flex-col items-center p-4 lg:p-8 ${activeTab === 'preview' ? 'block' : 'hidden lg:flex'
                                 }`}>
-                                <div className="w-full max-w-md mx-auto space-y-6 pb-40 lg:pb-32 min-h-full flex flex-col items-center justify-start">
-                                    <div className="flex items-center justify-center gap-2 text-[#8B6F4E] text-xs font-bold uppercase tracking-widest opacity-70 sticky top-0 py-2 bg-[#F3ECE4]/95 backdrop-blur-md rounded-full lg:bg-[#E8E0D5]/80 z-10 w-fit mx-auto px-6 shadow-sm mb-6">
+                                <div className="w-full max-w-md mx-auto space-y-6 pb-20 lg:pb-0">
+                                    <div className="flex items-center justify-center gap-2 text-[#8B6F4E] text-xs font-bold uppercase tracking-widest opacity-70 sticky top-0 py-2 bg-[#F3ECE4]/80 backdrop-blur-md rounded-full lg:bg-transparent lg:backdrop-blur-none z-10 w-fit mx-auto px-4">
                                         <LayoutList className="w-4 h-4" />
                                         <span>Pré-visualização em Tempo Real</span>
                                     </div>
 
                                     {/* Preview Wrapper */}
-                                    <div className="w-full transform transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl rounded-xl">
+                                    <div className="transform transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl rounded-xl">
                                         {renderPreview()}
                                     </div>
 
-                                    <div className="text-center space-y-2 mt-auto pt-8">
+                                    <div className="text-center space-y-2">
                                         <p className="text-xs text-[#8B6F4E]/60">
                                             Visualização exata de como aparecerá para o cliente.
                                         </p>
