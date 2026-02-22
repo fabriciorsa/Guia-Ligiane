@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTours } from '../../context/TourContext';
-import { Plus, Edit, Trash, LogOut, Save, X, Calendar, Clock, Users, Star, MessageCircle, LayoutList, Eye, PenTool, Upload } from 'lucide-react';
+import { Plus, Edit, Trash, LogOut, Save, X, Calendar, Clock, Users, Star, MessageCircle, LayoutList, Eye, PenTool, Upload, Tag, RefreshCcw, Image as ImageIcon } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 
 const Dashboard = () => {
-    const { tours, addTour, updateTour, deleteTour } = useTours();
+    const { tours, addTour, updateTour, deleteTour, error, isLoading } = useTours();
     const navigate = useNavigate();
     const [isEditing, setIsEditing] = useState<number | null>(null);
     const [editForm, setEditForm] = useState<any>({});
@@ -19,7 +19,7 @@ const Dashboard = () => {
     };
 
     const handleDelete = (id: number) => {
-        if (confirm('Tem certeza que deseja excluir este passeio?')) {
+        if (confirm('Tem certeza que deseja excluir este passeio e todas as suas imagens físicas?')) {
             deleteTour(id);
             toast.success('Passeio excluído com sucesso');
         }
@@ -39,13 +39,13 @@ const Dashboard = () => {
 
     const nextPreviewImage = () => {
         if (editForm.images?.length > 1) {
-            setPreviewImageIndex((prev) => (prev + 1) % editForm.images.length);
+            setPreviewImageIndex((prev: number) => (prev + 1) % editForm.images.length);
         }
     };
 
     const prevPreviewImage = () => {
         if (editForm.images?.length > 1) {
-            setPreviewImageIndex((prev) => (prev - 1 + editForm.images.length) % editForm.images.length);
+            setPreviewImageIndex((prev: number) => (prev - 1 + editForm.images.length) % editForm.images.length);
         }
     };
 
@@ -60,6 +60,7 @@ const Dashboard = () => {
         }
 
         const filesToProcess = Array.from(files).slice(0, remainingSlots);
+        toast.info('Processando imagens...');
 
         filesToProcess.forEach(file => {
             const reader = new FileReader();
@@ -95,40 +96,58 @@ const Dashboard = () => {
 
     const handleSave = () => {
         if (isEditing) {
+            toast.loading('Salvando alterações e otimizando imagens...', { id: 'save-toast' });
+
             const updatedTour = {
                 ...editForm,
                 features: editForm.featuresString.split('\n').filter((f: string) => f.trim() !== '')
             };
             delete updatedTour.featuresString; // Clean up helper
 
-            updateTour(isEditing, updatedTour);
-            setIsEditing(null);
-            toast.success('Passeio atualizado com sucesso');
+            updateTour(isEditing, updatedTour).then(() => {
+                setIsEditing(null);
+                toast.success('Passeio salvo no Banco de Dados com sucesso!', { id: 'save-toast' });
+            }).catch(() => {
+                toast.error('Erro ao salvar no Banco de Dados', { id: 'save-toast' });
+            });
         }
     };
 
     const handleAddNew = () => {
-        const newTour = {
+        if (error) {
+            toast.error('Falha de conexão: O Servidor ou o Banco de Dados estão offline.', { id: 'new-toast' });
+            return;
+        }
+
+        const newTour: any = {
             id: Date.now(),
-            title: 'Novo Passeio',
+            title: 'Nova Trilha',
             subtitle: '',
-            description: 'Descrição curta do passeio',
-            fullDescription: 'Descrição completa do passeio detalhada...',
+            description: 'Breve resumo do passeio.',
+            fullDescription: 'Descrição completa da experiência e do roteiro...',
             duration: '0 horas',
-            date: 'Data',
-            price: '0,00',
-            images: ['https://placehold.co/600x400?text=Sem+Imagem'], // Default image
-            features: ['Item incluso 1', 'Item incluso 2'],
+            date: 'Consulte agenda',
+            price: '150.00',
+            images: [], // Start without images to encourage real uploads
+            features: ['Transporte', 'Guia Local', 'Almoço não incluso'],
             rating: 5.0,
             reviews: 0,
-            maxPeople: 0
+            maxPeople: 20
         };
-        addTour(newTour);
-        handleEdit(newTour); // Immediately open edit mode
-        toast.info('Novo passeio criado. Edite os detalhes.');
+        toast.loading('Preparando novo registro...', { id: 'new-toast' });
+
+        addTour(newTour).then(() => {
+            toast.success('Rascunho criado. Preencha os detalhes e insira fotos.', { id: 'new-toast' });
+        }).catch(() => {
+            toast.error('Falha ao criar rascunho', { id: 'new-toast' });
+        });
     };
 
-    // Render the Live Preview (copy of Tours.tsx Modal/Card logic)
+    const filteredTours = useMemo(() => {
+        return tours.filter((tour: any) => tour.title.toLowerCase().includes(searchTerm.toLowerCase()));
+    }, [tours, searchTerm]);
+
+    // Live Preview Component
     const renderPreview = () => {
         const previewData = {
             ...editForm,
@@ -136,29 +155,32 @@ const Dashboard = () => {
         };
 
         return (
-            <div className="bg-white rounded-xl shadow-2xl overflow-hidden border border-brand-beige relative w-full max-w-sm sm:max-w-md mx-auto">
-                {/* Simulation of Dialog Close Button */}
-                <div className="absolute top-4 right-4 z-50 w-8 h-8 md:w-10 md:h-10 bg-white rounded-full flex items-center justify-center shadow-lg cursor-not-allowed opacity-50">
-                    <X className="w-4 h-4 md:w-5 md:h-5 text-brand-brown" />
-                </div>
-
+            <div className="bg-white rounded-[24px] shadow-2xl overflow-hidden border border-gray-100 relative w-full max-w-sm sm:max-w-md mx-auto ring-1 ring-black/5">
                 {/* Hero Image */}
-                <div className="relative h-48 sm:h-64 group">
-                    <img
-                        src={previewData.images?.[previewImageIndex] || 'https://placehold.co/600x400?text=Sem+Imagem'}
-                        alt={previewData.title}
-                        className="w-full h-full object-cover transition-opacity duration-300"
-                        onError={(e) => (e.currentTarget.src = 'https://placehold.co/600x400?text=Imagem+Indisponivel')}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <div className="relative h-56 sm:h-72 group">
+                    {previewData.images?.length > 0 ? (
+                        <img
+                            src={previewData.images[previewImageIndex]}
+                            alt={previewData.title}
+                            className="w-full h-full object-cover transition-opacity duration-300"
+                        />
+                    ) : (
+                        <div className="w-full h-full bg-gray-100 flex flex-col items-center justify-center text-gray-400">
+                            <ImageIcon className="w-12 h-12 mb-2 opacity-30" />
+                            <span className="text-sm font-medium">Sem Imagens</span>
+                        </div>
+                    )}
+
+                    {/* Dark gradient for overlay text */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/10" />
 
                     {/* Image Indicators (Dots) */}
                     {previewData.images?.length > 1 && (
-                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+                        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
                             {previewData.images.map((_: any, idx: number) => (
                                 <div
                                     key={idx}
-                                    className={`w-1.5 h-1.5 rounded-full transition-all ${idx === previewImageIndex ? 'bg-white w-3' : 'bg-white/50'}`}
+                                    className={`w-1.5 h-1.5 rounded-full transition-all ${idx === previewImageIndex ? 'bg-white w-4' : 'bg-white/40'}`}
                                 />
                             ))}
                         </div>
@@ -169,91 +191,90 @@ const Dashboard = () => {
                         <>
                             <button
                                 onClick={(e) => { e.stopPropagation(); prevPreviewImage(); }}
-                                className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 text-[#365A38] rounded-full flex items-center justify-center shadow-lg hover:bg-white hover:scale-110 transition-all opacity-0 group-hover:opacity-100"
+                                className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/20 backdrop-blur-md text-white rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-all opacity-0 group-hover:opacity-100"
                             >
                                 <div className="w-2.5 h-2.5 border-t-2 border-l-2 border-current -rotate-45 ml-0.5" />
                             </button>
                             <button
                                 onClick={(e) => { e.stopPropagation(); nextPreviewImage(); }}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 text-[#365A38] rounded-full flex items-center justify-center shadow-lg hover:bg-white hover:scale-110 transition-all opacity-0 group-hover:opacity-100"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/20 backdrop-blur-md text-white rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-all opacity-0 group-hover:opacity-100"
                             >
                                 <div className="w-2.5 h-2.5 border-t-2 border-r-2 border-current rotate-45 mr-0.5" />
                             </button>
                         </>
                     )}
+
+                    {/* Overlay Title */}
+                    <div className="absolute bottom-4 left-5 right-5 z-10">
+                        <h2 className="text-2xl font-black text-white leading-tight drop-shadow-md">
+                            {previewData.title || 'Título da Trilha'}
+                        </h2>
+                        {previewData.subtitle && (
+                            <span className="text-white/90 font-bold text-sm block mt-1 uppercase tracking-widest drop-shadow-md text-[#C68D5D]">
+                                {previewData.subtitle}
+                            </span>
+                        )}
+                    </div>
                 </div>
 
                 {/* Content */}
-                <div className="p-5 sm:p-6 bg-[#F5F0E8]">
-                    <div className="mb-4">
-                        <div className="mb-3">
-                            <h2 className="text-xl sm:text-2xl font-bold text-[#2C2416] text-left leading-tight">
-                                {previewData.title || 'Título do Passeio'}
-                            </h2>
-                            {previewData.subtitle && (
-                                <span className="text-[#C68D5D] font-semibold text-sm sm:text-base block mt-1 uppercase">
-                                    {previewData.subtitle}
-                                </span>
-                            )}
+                <div className="p-6 bg-white">
+                    <div className="flex flex-wrap items-center gap-2 mb-6 text-xs font-semibold text-gray-600">
+                        <div className="flex items-center gap-1.5 bg-[#C68D5D]/10 px-3 py-1.5 rounded-full text-[#C68D5D]">
+                            <Calendar className="w-3.5 h-3.5" />
+                            <span>{previewData.date || 'Data a definir'}</span>
                         </div>
-
-                        <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-[#8B6F4E]">
-                            <div className="flex items-center gap-1 bg-[#C68D5D]/20 px-2 py-0.5 rounded-full text-[#5D4037] font-bold">
-                                <Calendar className="w-3 h-3 text-[#C68D5D]" />
-                                <span>{previewData.date}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                                <Clock className="w-3 h-3" />
-                                <span>{previewData.duration}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                                <Users className="w-3 h-3" />
-                                <span>Até {previewData.maxPeople}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                                <Star className="w-3 h-3 fill-[#D4AF37] text-[#D4AF37]" />
-                                <span>{previewData.rating}</span>
-                            </div>
+                        <div className="flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-full">
+                            <Clock className="w-3.5 h-3.5" />
+                            <span>{previewData.duration || '--'}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-full">
+                            <Users className="w-3.5 h-3.5" />
+                            <span>Até {previewData.maxPeople || '0'}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 bg-yellow-50 px-3 py-1.5 rounded-full text-yellow-600">
+                            <Star className="w-3.5 h-3.5 fill-current" />
+                            <span>{previewData.rating || '5.0'}</span>
                         </div>
                     </div>
 
                     {/* Description */}
                     <div className="mb-6">
-                        <h3 className="text-sm sm:text-base font-semibold text-[#2C2416] mb-2 border-l-4 border-[#C68D5D] pl-3">Sobre o Passeio</h3>
-                        <p className="text-[#5D4037] leading-relaxed text-xs sm:text-sm whitespace-pre-wrap">
-                            {previewData.fullDescription || 'Descrição completa do passeio...'}
+                        <h3 className="text-sm font-black text-gray-900 mb-2.5 border-l-4 border-[#2A452B] pl-3 uppercase tracking-wider">A Experiência</h3>
+                        <p className="text-gray-600 leading-relaxed text-sm whitespace-pre-wrap">
+                            {previewData.fullDescription || 'Descrição incrível da trilha...'}
                         </p>
                     </div>
 
                     {/* Features */}
-                    <div className="mb-6">
-                        <h3 className="text-sm sm:text-base font-semibold text-[#2C2416] mb-2 border-l-4 border-[#C68D5D] pl-3">O que está incluído</h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div className="mb-8">
+                        <h3 className="text-sm font-black text-gray-900 mb-3.5 border-l-4 border-[#2A452B] pl-3 uppercase tracking-wider">Incluso no Pacote</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                             {previewData.features?.map((feature: string, idx: number) => (
-                                <div key={idx} className="flex items-center gap-2 text-[#5D4037] text-xs sm:text-sm">
-                                    <div className="w-4 h-4 bg-[#C68D5D]/20 rounded-full flex items-center justify-center shrink-0">
-                                        <div className="w-1.5 h-1.5 bg-[#C68D5D] rounded-full" />
+                                <div key={idx} className="flex items-center gap-2.5 text-gray-600 text-sm">
+                                    <div className="w-5 h-5 bg-[#2A452B]/10 rounded-full flex items-center justify-center shrink-0">
+                                        <div className="w-1.5 h-1.5 bg-[#2A452B] rounded-full" />
                                     </div>
-                                    <span>{feature}</span>
+                                    <span className="font-medium">{feature}</span>
                                 </div>
                             ))}
                         </div>
                     </div>
 
                     {/* Price and CTA */}
-                    <div className="flex flex-col gap-3 p-4 bg-white rounded-xl border border-[#E8E0D5] shadow-sm">
+                    <div className="flex flex-col gap-3 p-5 bg-[#F8F9FA] rounded-[20px] ring-1 ring-black/5">
                         <div className="flex justify-between items-end">
                             <div>
-                                <p className="text-xs text-[#8B6F4E] mb-0.5">Investimento</p>
-                                <p className="text-2xl font-bold text-[#C68D5D]">
-                                    R$ {previewData.price}
-                                    <span className="text-xs font-normal text-[#8B6F4E] ml-1">/pessoa</span>
+                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-0.5">Valor do Ingresso</p>
+                                <p className="text-3xl font-black text-[#2A452B]">
+                                    <span className="text-xl font-bold mr-1 align-top">R$</span>
+                                    {previewData.price || '0.00'}
                                 </p>
                             </div>
                         </div>
-                        <button disabled className="w-full px-4 py-3 bg-[#25D366] text-white font-semibold rounded-lg flex items-center justify-center gap-2 opacity-80 cursor-not-allowed shadow-sm">
-                            <MessageCircle className="w-4 h-4" />
-                            Reservar (WhatsApp)
+                        <button disabled className="w-full py-4 bg-[#25D366] text-white font-black rounded-xl flex items-center justify-center gap-2 transition-all shadow-md shadow-[#25D366]/20 mt-2 opacity-50 cursor-not-allowed">
+                            <MessageCircle className="w-5 h-5" />
+                            Simular Reserva (Inativo)
                         </button>
                     </div>
                 </div>
@@ -262,372 +283,506 @@ const Dashboard = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#F5F0E8] p-4 lg:p-8 font-sans">
-            <Toaster />
+        <div className="flex h-[100dvh] bg-[#F8F9FA] font-sans text-gray-800 overflow-hidden">
+            <Toaster position="top-right" />
 
-            {/* Main Listing View - Only visible when NOT editing */}
-            {!isEditing && (
-                <div className="max-w-6xl mx-auto">
-                    {/* Header */}
-                    <div className="flex justify-between items-center mb-8 bg-white p-6 rounded-2xl shadow-sm border border-[#E8E0D5]">
-                        <div>
-                            <h1 className="text-2xl font-bold text-[#2C2416]">Painel Administrativo</h1>
-                            <p className="text-[#8B6F4E]">Gerencie seus passeios</p>
+            {/* Sidebar Desktop */}
+            <aside className="w-[280px] bg-white border-r border-gray-200 hidden md:flex flex-col z-20 shadow-sm relative shrink-0">
+                <div className="px-8 pt-8 pb-6 flex items-center justify-center border-b border-gray-100/50 mix-blend-multiply">
+                    <img src="/logo-hd.webp" alt="Trilhas de Sergipe Logo" className="w-[120px] object-contain drop-shadow-sm" />
+                </div>
+
+                <div className="px-8 py-5">
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Painel Administrativo</p>
+                </div>
+
+                <nav className="flex-1 px-4 space-y-1">
+                    <button className="flex items-center gap-3 w-full px-4 py-3.5 bg-[#2A452B] text-white rounded-xl font-bold transition-all shadow-md shadow-[#2A452B]/20 group">
+                        <LayoutList className="w-5 h-5 text-white/90 group-hover:scale-110 transition-transform" />
+                        <span>Catálogo de Trilhas</span>
+                    </button>
+                    <button disabled className="flex items-center gap-3 w-full px-4 py-3.5 text-gray-500 hover:bg-gray-50 rounded-xl font-medium transition-all group opacity-50 cursor-not-allowed">
+                        <Users className="w-5 h-5 text-gray-400 group-hover:scale-110 transition-transform" />
+                        <span>Lista de Clientes</span>
+                        <span className="ml-auto text-[10px] font-black bg-gray-200 text-gray-500 px-2.5 py-1 rounded-lg">BREVE</span>
+                    </button>
+                    <button disabled className="flex items-center gap-3 w-full px-4 py-3.5 text-gray-500 hover:bg-gray-50 rounded-xl font-medium transition-all group opacity-50 cursor-not-allowed">
+                        <Calendar className="w-5 h-5 text-gray-400 group-hover:scale-110 transition-transform" />
+                        <span>Reservas & Agenda</span>
+                        <span className="ml-auto text-[10px] font-black bg-gray-200 text-gray-500 px-2.5 py-1 rounded-lg">BREVE</span>
+                    </button>
+                </nav>
+
+                <div className="p-4 m-4 mt-auto rounded-2xl bg-gradient-to-br from-[#E8E0D5]/40 to-[#E8E0D5]/10 ring-1 ring-black/5 flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm border border-gray-100">
+                        <RefreshCcw className={`w-5 h-5 ${error ? 'text-red-500' : 'text-green-600'} ${isLoading ? 'animate-spin' : ''}`} />
+                    </div>
+                    <div>
+                        <p className="text-[11px] font-black text-gray-900 uppercase">Status do Sistema</p>
+                        <div className="flex items-center gap-1.5 opacity-80">
+                            <div className={`w-1.5 h-1.5 rounded-full shadow-sm ${error ? 'bg-red-500 shadow-red-500' : 'bg-green-500 shadow-green-500'}`}></div>
+                            <p className={`text-[10px] font-bold ${error ? 'text-red-600' : 'text-gray-600'}`}>
+                                {error ? 'Banco de Dados Offline' : isLoading ? 'Conectando...' : 'Sistema Operacional'}
+                            </p>
                         </div>
-                        <button
-                            onClick={handleLogout}
-                            className="flex items-center gap-2 text-red-500 hover:text-red-700 font-medium px-4 py-2 hover:bg-red-50 rounded-lg transition-colors"
-                        >
-                            <LogOut className="w-5 h-5" />
-                            Sair
-                        </button>
                     </div>
+                </div>
 
-                    {/* Actions Bar */}
-                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8">
-                        <input
-                            type="text"
-                            placeholder="Buscar passeio por título..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="px-4 py-3 rounded-xl border border-[#E8E0D5] w-full sm:max-w-md focus:outline-none focus:ring-2 focus:ring-[#365A38]/30 transition-all shadow-sm"
-                        />
-                        <button
-                            onClick={handleAddNew}
-                            className="flex items-center gap-2 px-6 py-3 bg-[#365A38] text-white font-bold rounded-xl hover:bg-[#2A452B] transition-all shadow-md active:scale-95 w-full sm:w-auto justify-center"
-                        >
-                            <Plus className="w-5 h-5" />
-                            Novo Passeio
-                        </button>
-                    </div>
+                <div className="p-4 border-t border-gray-100">
+                    <button onClick={handleLogout} className="flex items-center justify-center gap-2 w-full px-4 py-3.5 text-red-500 hover:bg-red-50 hover:text-red-600 rounded-xl font-bold transition-colors">
+                        <LogOut className="w-5 h-5" /> Sair com Segurança
+                    </button>
+                </div>
+            </aside>
 
-                    {/* Cards Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {tours
-                            .filter((tour: any) => tour.title.toLowerCase().includes(searchTerm.toLowerCase()))
-                            .map((tour: any) => (
-                                <div key={tour.id} className="bg-white rounded-2xl shadow-sm border border-[#E8E0D5] overflow-hidden group hover:shadow-md transition-all">
-                                    <div className="relative h-48 overflow-hidden">
-                                        <img
-                                            src={tour.images?.[0] || 'https://placehold.co/600x400?text=Sem+Imagem'}
-                                            alt={tour.title}
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                            onError={(e) => (e.currentTarget.src = 'https://placehold.co/600x400?text=Imagem+Indisponivel')}
+            {/* Main Content Area */}
+            <main className="flex-1 flex flex-col h-[100dvh] overflow-hidden relative z-10 w-full min-w-0">
+                {/* Mobile Header */}
+                <header className="md:hidden bg-white/95 backdrop-blur-md border-b border-gray-100 p-4 sticky top-0 flex justify-between items-center z-30 shrink-0">
+                    <img src="/logo-hd.webp" alt="Logo" className="w-[80px] object-contain mix-blend-multiply" />
+                    <button onClick={handleLogout} className="p-2.5 text-red-500 bg-red-50/80 rounded-xl active:scale-95 transition-transform"><LogOut className="w-5 h-5" /></button>
+                </header>
+
+                {/* Main Scrollable Area */}
+                <div className="flex-1 overflow-y-auto w-full custom-scrollbar relative">
+                    {!isEditing && (
+                        <div className="p-4 md:p-8 max-w-[1400px] mx-auto space-y-8 pb-32 animate-in fade-in slide-in-from-bottom-4 duration-500">
+
+                            {/* Page Header */}
+                            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5 bg-white p-6 md:p-8 rounded-[32px] shadow-sm border border-gray-100">
+                                <div>
+                                    <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight">Catálogo de Trilhas</h2>
+                                    <p className="text-gray-500 mt-1 md:mt-2 font-medium text-sm md:text-base">Controle total sobre as opções oferecidas aos seus clientes no site principal.</p>
+                                </div>
+                                <div className="flex flex-col sm:flex-row gap-4 w-full xl:w-auto shrink-0 mt-2 xl:mt-0">
+                                    <div className="relative w-full sm:w-[320px]">
+                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <svg className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" /></svg>
+                                        </div>
+                                        <input
+                                            type="text"
+                                            placeholder="Busque por nome, local..."
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                            className="block w-full pl-11 pr-4 py-3.5 border border-gray-200 rounded-2xl leading-5 bg-gray-50/50 placeholder-gray-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-[#C68D5D]/50 focus:border-[#C68D5D] transition-all font-bold text-gray-900"
                                         />
-                                        <div className="absolute top-3 right-3 flex gap-2">
-                                            <button
-                                                onClick={() => handleEdit(tour)}
-                                                className="p-2 bg-white/90 backdrop-blur-sm text-[#365A38] rounded-full hover:bg-[#365A38] hover:text-white transition-colors shadow-sm"
-                                            >
-                                                <Edit className="w-4 h-4" />
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(tour.id)}
-                                                className="p-2 bg-white/90 backdrop-blur-sm text-red-500 rounded-full hover:bg-red-500 hover:text-white transition-colors shadow-sm"
-                                            >
-                                                <Trash className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                        {tour.date && (
-                                            <div className="absolute bottom-3 left-3 bg-[#365A38]/90 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
-                                                <Calendar className="w-3 h-3" /> {tour.date}
-                                            </div>
-                                        )}
                                     </div>
-                                    <div className="p-5">
-                                        <h3 className="text-xl font-bold text-[#2C2416] mb-2 line-clamp-1">{tour.title}</h3>
-                                        <p className="text-[#8B6F4E] text-sm mb-4 line-clamp-2 min-h-[40px]">
-                                            {tour.description}
-                                        </p>
-                                        <div className="flex items-center justify-between text-sm pt-4 border-t border-[#E8E0D5]">
-                                            <span className="font-bold text-[#365A38]">R$ {tour.price}</span>
-                                            <div className="flex items-center gap-3 text-[#8B6F4E]">
-                                                <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {tour.duration}</span>
-                                                <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {tour.maxPeople}</span>
-                                            </div>
-                                        </div>
+                                    <button onClick={handleAddNew} className="flex items-center justify-center gap-2 px-8 py-3.5 bg-[#C68D5D] text-white font-black rounded-2xl shadow-lg shadow-[#C68D5D]/20 hover:bg-[#b07849] hover:-translate-y-0.5 transition-all active:scale-95 whitespace-nowrap">
+                                        <Plus className="w-5 h-5 flex-shrink-0" /> Criar Rascunho
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Stats Row */}
+                            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                                <div className="bg-white p-6 rounded-[24px] shadow-sm border border-gray-100 flex items-center gap-5 relative overflow-hidden group">
+                                    <div className="absolute w-32 h-32 bg-[#2A452B]/5 rounded-full -right-8 -top-8 group-hover:scale-[1.8] transition-transform duration-700 ease-in-out"></div>
+                                    <div className="w-14 h-14 bg-[#2A452B]/5 text-[#2A452B] rounded-[18px] flex items-center justify-center shrink-0">
+                                        <LayoutList className="w-6 h-6" />
+                                    </div>
+                                    <div className="z-10">
+                                        <p className="text-xs font-black tracking-widest text-gray-400 uppercase">Trilhas no Ar</p>
+                                        <h4 className="text-3xl font-black text-gray-900 mt-1">{tours.length}</h4>
                                     </div>
                                 </div>
-                            ))}
-                    </div>
-                </div>
-            )}
-
-            {/* Edit Modal (Mobile Enhanced & Desktop Split View) */}
-            {isEditing && (
-                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-                    {/* Main Container */}
-                    <div className="bg-[#F5F0E8] w-full h-full sm:h-[90vh] sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden relative">
-
-                        {/* 1. Header Fixed */}
-                        <div className="bg-white border-b border-[#E8E0D5] px-4 py-3 lg:px-6 lg:py-4 flex justify-between items-center shrink-0 z-50 relative shadow-sm">
-                            <div>
-                                <h2 className="text-lg lg:text-xl font-bold text-[#2C2416]">Editor de Passeio</h2>
-                                <p className="text-xs text-[#8B6F4E] hidden sm:block">Você está editando: {editForm.title}</p>
+                                <div className="bg-white p-6 rounded-[24px] shadow-sm border border-gray-100 flex items-center gap-5 relative overflow-hidden group">
+                                    <div className="absolute w-32 h-32 bg-yellow-50 rounded-full -right-8 -top-8 group-hover:scale-[1.8] transition-transform duration-700 ease-in-out"></div>
+                                    <div className="w-14 h-14 bg-yellow-50 text-yellow-500 rounded-[18px] flex items-center justify-center shrink-0">
+                                        <Star className="w-6 h-6" />
+                                    </div>
+                                    <div className="z-10">
+                                        <p className="text-xs font-black tracking-widest text-gray-400 uppercase">Avaliação Global</p>
+                                        <h4 className="text-3xl font-black text-gray-900 mt-1 flex items-end">4.9<span className="text-xs text-yellow-500 font-bold ml-1.5 mb-2 rounded-md bg-yellow-100 px-1.5 py-[2px]">- 5.0</span></h4>
+                                    </div>
+                                </div>
+                                <div className="bg-white p-6 rounded-[24px] shadow-sm border border-gray-100 flex items-center gap-5 relative overflow-hidden group sm:col-span-1 lg:col-span-2">
+                                    <div className="absolute w-32 h-32 bg-blue-50 rounded-full -right-8 -top-8 group-hover:scale-[1.8] transition-transform duration-700 ease-in-out"></div>
+                                    <div className="w-14 h-14 bg-blue-50 text-blue-500 rounded-[18px] flex items-center justify-center shrink-0">
+                                        <Users className="w-6 h-6" />
+                                    </div>
+                                    <div className="z-10 w-full">
+                                        <p className="text-xs font-black tracking-widest text-gray-400 uppercase">Capacidade Total</p>
+                                        <h4 className="text-3xl font-black text-gray-900 mt-1 flex items-end">{tours.reduce((acc: number, tour: any) => acc + (parseInt(tour.maxPeople) || 0), 0)} <span className="text-xs font-bold text-gray-400 ml-1.5 mb-2 uppercase">Vagas/dia</span></h4>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="flex items-center gap-2 sm:gap-3">
-                                <button
-                                    onClick={() => setIsEditing(null)}
-                                    className="px-3 sm:px-4 py-2 text-[#8B6F4E] hover:text-[#2C2416] font-medium text-sm transition-colors rounded-lg hover:bg-gray-100"
-                                >
-                                    Cancelar
-                                </button>
-                                <button
-                                    onClick={handleSave}
-                                    className="px-4 sm:px-6 py-2 bg-[#365A38] text-white font-bold rounded-lg hover:bg-[#2A452B] transition-colors flex items-center gap-2 text-sm shadow-md active:scale-95"
-                                >
-                                    <Save className="w-4 h-4" />
-                                    <span className="hidden sm:inline">Salvar Alterações</span>
-                                    <span className="sm:hidden">Salvar</span>
-                                </button>
-                            </div>
-                        </div>
 
-                        {/* 2. Mobile Tabs Controller (Hidden on Desktop) */}
-                        <div className="lg:hidden bg-white border-b border-[#E8E0D5] flex sticky top-0 z-10">
-                            <button
-                                onClick={() => setActiveTab('edit')}
-                                className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 border-b-2 transition-colors ${activeTab === 'edit'
-                                    ? 'border-[#365A38] text-[#365A38] bg-[#365A38]/5'
-                                    : 'border-transparent text-[#8B6F4E] hover:bg-gray-50'
-                                    }`}
-                            >
-                                <PenTool className="w-4 h-4" /> Editar
-                            </button>
-                            <button
-                                onClick={() => setActiveTab('preview')}
-                                className={`flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 border-b-2 transition-colors ${activeTab === 'preview'
-                                    ? 'border-[#365A38] text-[#365A38] bg-[#365A38]/5'
-                                    : 'border-transparent text-[#8B6F4E] hover:bg-gray-50'
-                                    }`}
-                            >
-                                <Eye className="w-4 h-4" /> Visualizar
-                            </button>
-                        </div>
-
-                        {/* 3. Main Content - Independent Scrolling Columns (Split View) */}
-                        <div className="flex-1 flex overflow-hidden relative min-h-0">
-
-                            {/* LEFT: Form Editor */}
-                            <div className={`w-full lg:w-1/2 h-full overflow-y-auto custom-scrollbar bg-white border-r border-[#E8E0D5] ${activeTab === 'edit' ? 'block' : 'hidden lg:block'
-                                }`}>
-                                <div className="p-5 lg:p-8 max-w-3xl mx-auto space-y-8 pb-40 lg:pb-32">
-
-                                    {/* Info Básica */}
-                                    <div className="space-y-4">
-                                        <h3 className="font-bold text-[#2C2416] flex items-center gap-2 text-lg">
-                                            <span className="w-6 h-6 bg-[#365A38] text-white text-xs rounded-full flex items-center justify-center font-bold">1</span>
-                                            Informações Básicas
-                                        </h3>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            <div className="col-span-1 sm:col-span-2">
-                                                <label className="block text-xs font-bold text-[#8B6F4E] uppercase tracking-wider mb-1">Título do Passeio</label>
-                                                <input
-                                                    className="w-full p-3 bg-gray-50 border border-[#E8E0D5] rounded-xl focus:ring-2 focus:ring-[#365A38]/20 outline-none transition-all font-medium text-[#2C2416]"
-                                                    value={editForm.title}
-                                                    onChange={e => setEditForm({ ...editForm, title: e.target.value })}
-                                                    placeholder="Ex: Ilha Pomonga"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-xs font-bold text-[#8B6F4E] uppercase tracking-wider mb-1">Subtítulo (Opcional)</label>
-                                                <input
-                                                    className="w-full p-3 bg-gray-50 border border-[#E8E0D5] rounded-xl focus:ring-2 focus:ring-[#365A38]/20 outline-none transition-all"
-                                                    value={editForm.subtitle}
-                                                    onChange={e => setEditForm({ ...editForm, subtitle: e.target.value })}
-                                                    placeholder="Ex: No Tototó"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-xs font-bold text-[#8B6F4E] uppercase tracking-wider mb-1">Preço (R$)</label>
-                                                <input
-                                                    className="w-full p-3 bg-gray-50 border border-[#E8E0D5] rounded-xl focus:ring-2 focus:ring-[#365A38]/20 outline-none transition-all font-mono"
-                                                    value={editForm.price}
-                                                    onChange={e => setEditForm({ ...editForm, price: e.target.value })}
-                                                    placeholder="0,00"
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <hr className="border-[#E8E0D5]" />
-
-                                    {/* Detalhes */}
-                                    <div className="space-y-4">
-                                        <h3 className="font-bold text-[#2C2416] flex items-center gap-2 text-lg">
-                                            <span className="w-6 h-6 bg-[#365A38] text-white text-xs rounded-full flex items-center justify-center font-bold">2</span>
-                                            Detalhes Logísticos
-                                        </h3>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <label className="block text-xs font-bold text-[#8B6F4E] uppercase tracking-wider mb-1">Data Próxima</label>
-                                                <input
-                                                    type="text"
-                                                    className="w-full p-3 bg-gray-50 border border-[#E8E0D5] rounded-xl focus:ring-2 focus:ring-[#365A38]/20 outline-none"
-                                                    value={editForm.date}
-                                                    onChange={e => setEditForm({ ...editForm, date: e.target.value })}
-                                                    placeholder="Ex: 15 de Março"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-xs font-bold text-[#8B6F4E] uppercase tracking-wider mb-1">Duração</label>
-                                                <input
-                                                    className="w-full p-3 bg-gray-50 border border-[#E8E0D5] rounded-xl focus:ring-2 focus:ring-[#365A38]/20 outline-none"
-                                                    value={editForm.duration}
-                                                    onChange={e => setEditForm({ ...editForm, duration: e.target.value })}
-                                                    placeholder="Ex: 5h"
-                                                />
-                                            </div>
-                                            <div className="col-span-2 sm:col-span-1">
-                                                <label className="block text-xs font-bold text-[#8B6F4E] uppercase tracking-wider mb-1">Max Pessoas</label>
-                                                <input
-                                                    type="number"
-                                                    className="w-full p-3 bg-gray-50 border border-[#E8E0D5] rounded-xl focus:ring-2 focus:ring-[#365A38]/20 outline-none"
-                                                    value={editForm.maxPeople}
-                                                    onChange={e => setEditForm({ ...editForm, maxPeople: e.target.value })}
-                                                    placeholder="Ex: 20"
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <hr className="border-[#E8E0D5]" />
-
-                                    {/* Conteúdo */}
-                                    <div className="space-y-4">
-                                        <h3 className="font-bold text-[#2C2416] flex items-center gap-2 text-lg">
-                                            <span className="w-6 h-6 bg-[#365A38] text-white text-xs rounded-full flex items-center justify-center font-bold">3</span>
-                                            Conteúdo Rico
-                                        </h3>
-                                        <div>
-                                            <label className="block text-xs font-bold text-[#8B6F4E] uppercase tracking-wider mb-1">Descrição Curta (Card)</label>
-                                            <textarea
-                                                className="w-full p-3 bg-gray-50 border border-[#E8E0D5] rounded-xl focus:ring-2 focus:ring-[#365A38]/20 outline-none resize-y min-h-[100px]"
-                                                value={editForm.description}
-                                                onChange={e => setEditForm({ ...editForm, description: e.target.value })}
-                                                placeholder="Resumo para o card inicial..."
-                                                rows={3}
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-bold text-[#8B6F4E] uppercase tracking-wider mb-1">Descrição Completa (Modal)</label>
-                                            <textarea
-                                                className="w-full p-3 bg-gray-50 border border-[#E8E0D5] rounded-xl focus:ring-2 focus:ring-[#365A38]/20 outline-none resize-y min-h-[200px]"
-                                                value={editForm.fullDescription}
-                                                onChange={e => setEditForm({ ...editForm, fullDescription: e.target.value })}
-                                                placeholder="Detalhes completos da experiência..."
-                                                rows={8}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <hr className="border-[#E8E0D5]" />
-
-                                    {/* Mídia e Extras */}
-                                    <div className="space-y-4">
-                                        <h3 className="font-bold text-[#2C2416] flex items-center gap-2 text-lg">
-                                            <span className="w-6 h-6 bg-[#365A38] text-white text-xs rounded-full flex items-center justify-center font-bold">4</span>
-                                            Mídia e Extras
-                                        </h3>
-                                        <div>
-                                            <div>
-                                                <div className="flex justify-between items-center mb-2">
-                                                    <label className="block text-xs font-bold text-[#8B6F4E] uppercase tracking-wider">Galeria de Imagens (Max 5)</label>
-                                                    <span className="text-xs text-[#8B6F4E]">{editForm.images?.length || 0}/5</span>
-                                                </div>
-
-                                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
-                                                    {editForm.images?.map((img: string, index: number) => (
-                                                        <div key={index} className="relative aspect-square group rounded-xl overflow-hidden border border-[#E8E0D5] bg-gray-100">
-                                                            <img src={img} alt={`Preview ${index}`} className="w-full h-full object-cover" />
-
-                                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
-                                                                {index !== 0 && (
-                                                                    <button
-                                                                        onClick={() => setCoverImage(index)}
-                                                                        className="p-1.5 bg-white/20 hover:bg-white text-white hover:text-[#365A38] rounded-full transition-colors backdrop-blur-sm shadow-sm"
-                                                                        title="Definir como Capa"
-                                                                    >
-                                                                        <Star className="w-4 h-4 fill-current" />
-                                                                    </button>
-                                                                )}
-                                                                <button
-                                                                    onClick={() => removeImage(index)}
-                                                                    className="p-1.5 bg-red-500/80 hover:bg-red-600 text-white rounded-full transition-colors backdrop-blur-sm shadow-sm"
-                                                                    title="Remover Imagem"
-                                                                >
-                                                                    <Trash className="w-4 h-4" />
-                                                                </button>
-                                                            </div>
-
-                                                            {index === 0 && (
-                                                                <div className="absolute top-2 left-2 bg-[#365A38] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm flex items-center gap-1 z-10">
-                                                                    <Star className="w-3 h-3 fill-current" /> CAPA
-                                                                </div>
-                                                            )}
+                            {/* Tour Listing */}
+                            {filteredTours.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                                    {filteredTours.map((tour: any) => (
+                                        <div key={tour.id} className="bg-white rounded-[32px] shadow-sm border border-gray-100 overflow-hidden group hover:shadow-2xl hover:shadow-black/5 hover:-translate-y-1.5 transition-all duration-300 flex flex-col h-full ring-1 ring-black/5">
+                                            <div className="relative h-60 overflow-hidden bg-gray-50/50 p-2">
+                                                <div className="w-full h-full rounded-[24px] overflow-hidden relative">
+                                                    {tour.images?.length > 0 ? (
+                                                        <img
+                                                            src={tour.images[0]}
+                                                            alt={tour.title}
+                                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[800ms] ease-out"
+                                                            onError={(e) => (e.currentTarget.src = 'https://placehold.co/600x400?text=Sem+Foto')}
+                                                        />
+                                                    ) : (
+                                                        <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-300">
+                                                            <ImageIcon className="w-12 h-12" />
                                                         </div>
-                                                    ))}
-
-                                                    {(editForm.images?.length || 0) < 5 && (
-                                                        <label className="border-2 border-dashed border-[#E8E0D5] hover:border-[#365A38]/50 hover:bg-[#365A38]/5 rounded-xl flex flex-col items-center justify-center p-4 cursor-pointer transition-all aspect-square text-[#8B6F4E] hover:text-[#365A38]">
-                                                            <Upload className="w-6 h-6 mb-1" />
-                                                            <span className="text-xs font-bold">Adicionar</span>
-                                                            <input
-                                                                type="file"
-                                                                accept="image/*"
-                                                                multiple
-                                                                className="hidden"
-                                                                onChange={handleImageUpload}
-                                                            />
-                                                        </label>
                                                     )}
+
+                                                    <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none" />
+
+                                                    <div className="absolute top-4 left-4 flex gap-1.5">
+                                                        <span className="bg-[#2A452B]/90 backdrop-blur-md text-white text-[10px] uppercase font-black px-3 py-1.5 rounded-xl shadow-sm border border-white/10">
+                                                            Público
+                                                        </span>
+                                                        {tour.date && (
+                                                            <span className="bg-white/20 backdrop-blur-md text-white text-[10px] uppercase font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-sm border border-white/10">
+                                                                <Calendar className="w-3.5 h-3.5" /> {tour.date}
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Hover Overlay Actions */}
+                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 backdrop-blur-[2px]">
+                                                        <button
+                                                            onClick={() => handleEdit(tour)}
+                                                            className="px-6 py-3 bg-white text-[#2A452B] font-black rounded-xl hover:bg-gray-100 transition-all shadow-lg active:scale-95 flex items-center gap-2"
+                                                        >
+                                                            <Edit className="w-4 h-4" /> Editar
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDelete(tour.id)}
+                                                            className="w-12 h-12 bg-red-500 text-white rounded-xl flex items-center justify-center hover:bg-red-600 transition-all shadow-lg active:scale-95"
+                                                            title="Excluir Permanentemente"
+                                                        >
+                                                            <Trash className="w-5 h-5" />
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                                <p className="text-xs text-gray-400">
-                                                    A primeira imagem será usada como capa. Mouse sobre para opções.
-                                                </p>
                                             </div>
 
-                                            <div className="mt-4">
-                                                <label className="block text-xs font-bold text-[#8B6F4E] uppercase tracking-wider mb-1">Itens Inclusos (Um por linha)</label>
-                                                <textarea
-                                                    className="w-full p-3 bg-gray-50 border border-[#E8E0D5] rounded-xl focus:ring-2 focus:ring-[#365A38]/20 outline-none font-mono text-sm"
-                                                    value={editForm.featuresString || ''}
-                                                    onChange={e => setEditForm({ ...editForm, featuresString: e.target.value })}
-                                                    placeholder="Guia Local&#10;Almoço incluso&#10;Transporte"
-                                                    rows={5}
-                                                />
+                                            <div className="p-6 md:p-8 flex-1 flex flex-col pt-4">
+                                                <h3 className="text-2xl font-black text-gray-900 line-clamp-2 leading-tight mb-2 group-hover:text-[#2A452B] transition-colors">{tour.title}</h3>
+                                                {tour.subtitle && (
+                                                    <p className="text-sm font-bold text-[#C68D5D] uppercase tracking-wide mb-3">{tour.subtitle}</p>
+                                                )}
+
+                                                <p className="text-gray-500 text-sm mb-6 line-clamp-3 leading-relaxed flex-1 font-medium">
+                                                    {tour.description}
+                                                </p>
+
+                                                <div className="pt-4 border-t border-gray-100 flex items-center justify-between mt-auto bg-gray-50/50 p-4 rounded-2xl">
+                                                    <div>
+                                                        <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest block mb-1">Preço Atual</span>
+                                                        <span className="font-black text-[#C68D5D] text-2xl">R$ {parseFloat(tour.price).toFixed(2)}</span>
+                                                    </div>
+                                                    <div className="flex flex-col items-end gap-1">
+                                                        <div className="flex items-center gap-1.5 text-xs font-bold text-gray-600 bg-white px-2.5 py-1 rounded-md shadow-sm border border-gray-100">
+                                                            <Clock className="w-3.5 h-3.5 text-gray-400" /> {tour.duration}
+                                                        </div>
+                                                        <div className="flex items-center gap-1.5 text-xs font-bold text-gray-600 bg-white px-2.5 py-1 rounded-md shadow-sm border border-gray-100">
+                                                            <Users className="w-3.5 h-3.5 text-gray-400" /> Max {tour.maxPeople}
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="bg-white rounded-[32px] border border-gray-100 p-16 text-center shadow-sm">
+                                    <div className="w-24 h-24 bg-gray-50 rounded-[24px] flex items-center justify-center mx-auto mb-6 text-gray-300">
+                                        <Tag className="w-10 h-10" />
+                                    </div>
+                                    <h3 className="text-2xl font-black text-gray-900 mb-2">Poxa, nenhuma trilha.</h3>
+                                    <p className="text-gray-500 max-w-md mx-auto font-medium">
+                                        Parece que não temos nenhuma trilha cadastrada ainda ou sua busca não retornou resultados.
+                                    </p>
+                                    <button onClick={handleAddNew} className="mx-auto mt-8 flex items-center justify-center gap-2 px-8 py-3.5 bg-[#2A452B] text-white font-black rounded-xl shadow-lg shadow-[#2A452B]/20 hover:bg-[#1f3320] transition-all active:scale-95">
+                                        Adicionar Minha Primeira Trilha
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                {/* Edit Modal (Premium Overlay) */}
+                {isEditing && (
+                    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 lg:p-6 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
+                        {/* Box Modal */}
+                        <div className="bg-[#F8F9FA] w-full h-[100dvh] lg:h-[95vh] max-w-[1700px] lg:rounded-[32px] shadow-2xl flex flex-col overflow-hidden relative ring-1 ring-white/10 slide-in-from-bottom-6">
+
+                            {/* Modal Header Premium */}
+                            <div className="bg-white border-b border-gray-100 px-4 sm:px-6 py-4 lg:py-5 flex justify-between items-center z-20 shadow-sm relative shrink-0">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 bg-[#2A452B]/5 rounded-[16px] hidden sm:flex items-center justify-center text-[#2A452B] border border-[#2A452B]/10">
+                                        <Edit className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-xl lg:text-3xl font-black text-gray-900 tracking-tight">Estúdio de Roteiros</h2>
+                                        <div className="flex items-center gap-2 mt-0.5 md:mt-1">
+                                            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                                            <p className="text-[10px] md:text-xs font-bold text-gray-500 uppercase tracking-widest">{editForm.title || "Novo Rascunho"}</p>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-
-                            {/* RIGHT: Live Preview */}
-                            <div className={`w-full lg:w-1/2 h-full overflow-y-auto custom-scrollbar bg-[#E8E0D5]/30 p-4 lg:p-8 ${activeTab === 'preview' ? 'block' : 'hidden lg:block'
-                                }`}>
-                                <div className="w-full max-w-md mx-auto space-y-6 pb-40 lg:pb-32 min-h-full flex flex-col items-center justify-start">
-                                    <div className="flex items-center justify-center gap-2 text-[#8B6F4E] text-xs font-bold uppercase tracking-widest opacity-70 sticky top-0 py-2 bg-[#F3ECE4]/95 backdrop-blur-md rounded-full lg:bg-[#E8E0D5]/80 z-10 w-fit mx-auto px-6 shadow-sm mb-6">
-                                        <LayoutList className="w-4 h-4" />
-                                        <span>Pré-visualização em Tempo Real</span>
-                                    </div>
-
-                                    {/* Preview Wrapper */}
-                                    <div className="w-full transform transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl rounded-xl">
-                                        {renderPreview()}
-                                    </div>
-
-                                    <div className="text-center space-y-2 mt-auto pt-8">
-                                        <p className="text-xs text-[#8B6F4E]/60">
-                                            Visualização exata de como aparecerá para o cliente.
-                                        </p>
-                                    </div>
+                                <div className="flex items-center gap-2 sm:gap-4">
+                                    <button
+                                        onClick={() => setIsEditing(null)}
+                                        className="px-4 lg:px-6 py-3 text-gray-500 hover:text-gray-900 font-bold transition-all rounded-xl hover:bg-gray-100 active:scale-95 text-sm lg:text-base hidden sm:block"
+                                    >
+                                        Descartar
+                                    </button>
+                                    <button
+                                        onClick={() => setIsEditing(null)}
+                                        className="p-3 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-xl sm:hidden"
+                                    >
+                                        <X className="w-5 h-5" />
+                                    </button>
+                                    <button
+                                        onClick={handleSave}
+                                        className="px-6 lg:px-8 py-3 bg-[#2A452B] hover:bg-[#1a2d1b] text-white font-black rounded-xl transition-all shadow-lg shadow-[#2A452B]/30 flex items-center gap-2 active:scale-95 text-sm lg:text-base"
+                                    >
+                                        <Save className="w-5 h-5" />
+                                        <span className="hidden sm:inline">Salvar Base de Dados</span>
+                                        <span className="sm:hidden">Salvar</span>
+                                    </button>
                                 </div>
                             </div>
 
+                            {/* Mobile Tabs Controller */}
+                            <div className="lg:hidden bg-white border-b border-gray-200 flex shrink-0 z-10 w-full relative">
+                                <button
+                                    onClick={() => setActiveTab('edit')}
+                                    className={`flex-1 py-4 text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 border-b-2 transition-colors ${activeTab === 'edit'
+                                        ? 'border-[#2A452B] text-[#2A452B] bg-[#2A452B]/5'
+                                        : 'border-transparent text-gray-400 hover:bg-gray-50'
+                                        }`}
+                                >
+                                    <PenTool className="w-4 h-4" /> Dados
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab('preview')}
+                                    className={`flex-1 py-4 text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 border-b-2 transition-colors ${activeTab === 'preview'
+                                        ? 'border-[#2A452B] text-[#2A452B] bg-[#2A452B]/5'
+                                        : 'border-transparent text-gray-400 hover:bg-gray-50'
+                                        }`}
+                                >
+                                    <Eye className="w-4 h-4" /> Site
+                                </button>
+                            </div>
+
+                            {/* Modal Content - Split View */}
+                            <div className="flex-1 flex overflow-hidden min-h-0 relative">
+
+                                {/* LEFT: Editor Column */}
+                                <div className={`w-full lg:w-1/2 xl:w-7/12 h-full overflow-y-auto custom-scrollbar bg-white ${activeTab === 'edit' ? 'block' : 'hidden lg:block'}`}>
+                                    <div className="p-4 sm:p-6 lg:p-12 max-w-4xl mx-auto space-y-8 lg:space-y-12 pb-40">
+
+                                        {/* Block 1: Info Básica */}
+                                        <section className="bg-gray-50/50 p-6 sm:p-8 rounded-[32px] border border-gray-100 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] relative">
+                                            <div className="absolute top-0 right-0 transform translate-x-1/3 sm:translate-x-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 bg-white border-4 border-gray-50 rounded-full text-[#C68D5D] font-black flex items-center justify-center shadow-lg text-sm sm:text-base">1</div>
+                                            <h3 className="font-black text-gray-900 text-xl sm:text-2xl mb-6">Identidade Visual</h3>
+
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 lg:gap-6">
+                                                <div className="col-span-1 sm:col-span-2">
+                                                    <label className="block text-[10px] md:text-xs font-black text-gray-500 uppercase tracking-widest mb-2 ml-1">Título do Passeio (Maiúsculo)</label>
+                                                    <input
+                                                        className="w-full p-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-[#C68D5D]/50 focus:border-[#C68D5D] outline-none transition-all font-black text-gray-900 text-lg shadow-sm"
+                                                        value={editForm.title}
+                                                        onChange={e => setEditForm({ ...editForm, title: e.target.value })}
+                                                        placeholder="Sua incrível trilha..."
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-[10px] md:text-xs font-black text-gray-500 uppercase tracking-widest mb-2 ml-1">Subtítulo (Aparece Dourado)</label>
+                                                    <input
+                                                        className="w-full p-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-[#C68D5D]/50 focus:border-[#C68D5D] outline-none transition-all font-bold text-gray-700 shadow-sm"
+                                                        value={editForm.subtitle}
+                                                        onChange={e => setEditForm({ ...editForm, subtitle: e.target.value })}
+                                                        placeholder="Destaque..."
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-[10px] md:text-xs font-black text-gray-500 uppercase tracking-widest mb-2 ml-1">Investimento (BRL)</label>
+                                                    <div className="relative">
+                                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                            <span className="text-gray-400 font-bold">R$</span>
+                                                        </div>
+                                                        <input
+                                                            className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-[#2A452B]/50 focus:border-[#2A452B] outline-none transition-all text-[#2A452B] font-black text-lg shadow-sm"
+                                                            value={editForm.price}
+                                                            onChange={e => setEditForm({ ...editForm, price: e.target.value })}
+                                                            placeholder="0.00"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </section>
+
+                                        {/* Block 4: Imagens Físicas (Moved UP for priority) */}
+                                        <section className="bg-gray-50/50 p-6 sm:p-8 rounded-[32px] border border-gray-100 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] relative">
+                                            <div className="absolute top-0 right-0 transform translate-x-1/3 sm:translate-x-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 bg-white border-4 border-gray-50 rounded-full text-[#C68D5D] font-black flex items-center justify-center shadow-lg text-sm sm:text-base">2</div>
+                                            <h3 className="font-black text-gray-900 text-xl sm:text-2xl mb-6">Mídia & Galeria</h3>
+
+                                            <div className="space-y-6">
+                                                <div className="bg-white p-5 lg:p-6 rounded-[24px] border border-gray-100 shadow-sm ring-1 ring-black/5">
+                                                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-5 gap-3">
+                                                        <div>
+                                                            <h4 className="text-sm font-black text-gray-800 uppercase tracking-widest">Fotos Oficiais do Banco</h4>
+                                                            <p className="text-xs text-gray-500 font-medium mt-1">Ao deletar, apaga fisicamente do servidor Linux.</p>
+                                                        </div>
+                                                        <div className="px-3.5 py-1.5 bg-gray-100 rounded-xl text-xs font-black tracking-widest text-gray-500 shrink-0">
+                                                            {(editForm.images?.length || 0)} OF 5
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+                                                        {editForm.images?.map((img: string, index: number) => (
+                                                            <div key={index} className="relative aspect-square group rounded-[20px] overflow-hidden border-2 border-transparent hover:border-[#2A452B] transition-all bg-gray-100 shadow-md">
+                                                                <img src={img} alt={`Img ${index}`} className="w-full h-full object-cover" />
+
+                                                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3 md:gap-4 backdrop-blur-md">
+                                                                    {index !== 0 && (
+                                                                        <button
+                                                                            onClick={() => setCoverImage(index)}
+                                                                            className="px-4 py-2 bg-white text-gray-900 rounded-full text-[10px] md:text-xs font-black tracking-widest hover:bg-[#C68D5D] hover:text-white transition-transform active:scale-95"
+                                                                        >
+                                                                            USAR CAPA
+                                                                        </button>
+                                                                    )}
+                                                                    <button
+                                                                        onClick={() => removeImage(index)}
+                                                                        className="px-4 py-2 bg-red-500 text-white rounded-full text-[10px] md:text-xs font-black tracking-widest hover:bg-red-600 transition-transform active:scale-95 flex items-center gap-1.5"
+                                                                    >
+                                                                        <Trash className="w-3.5 h-3.5" /> DELETAR
+                                                                    </button>
+                                                                </div>
+
+                                                                {index === 0 && (
+                                                                    <div className="absolute top-2 left-2 bg-[#2A452B] text-white text-[9px] md:text-[10px] uppercase font-black tracking-widest px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 z-10 border border-white/20">
+                                                                        <Star className="w-3 h-3 fill-current" /> DESTAQUE PRINCIPAL
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        ))}
+
+                                                        {(editForm.images?.length || 0) < 5 && (
+                                                            <label className="border-2 border-dashed border-gray-300 hover:border-[#2A452B] bg-gray-50 hover:bg-[#2A452B]/5 rounded-[20px] flex flex-col items-center justify-center p-4 cursor-pointer transition-all aspect-square text-gray-400 hover:text-[#2A452B]">
+                                                                <Upload className="w-8 h-8 md:w-10 md:h-10 mb-2 md:mb-3" />
+                                                                <span className="text-[10px] md:text-xs font-black uppercase tracking-widest">Carregar Foto</span>
+                                                                <input
+                                                                    type="file"
+                                                                    accept="image/*"
+                                                                    multiple
+                                                                    className="hidden"
+                                                                    onChange={handleImageUpload}
+                                                                />
+                                                            </label>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </section>
+
+                                        {/* Block 2: Logística */}
+                                        <section className="bg-gray-50/50 p-6 sm:p-8 rounded-[32px] border border-gray-100 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] relative">
+                                            <div className="absolute top-0 right-0 transform translate-x-1/3 sm:translate-x-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 bg-white border-4 border-gray-50 rounded-full text-[#C68D5D] font-black flex items-center justify-center shadow-lg text-sm sm:text-base">3</div>
+                                            <h3 className="font-black text-gray-900 text-xl sm:text-2xl mb-6">Logística de Operação</h3>
+
+                                            <div className="grid grid-cols-2 gap-5 lg:gap-6">
+                                                <div className="col-span-2 md:col-span-1">
+                                                    <label className="block text-[10px] md:text-xs font-black text-gray-500 uppercase tracking-widest mb-2 ml-1">Agenda Escrita</label>
+                                                    <input
+                                                        className="w-full p-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-[#C68D5D]/50 focus:border-[#C68D5D] outline-none transition-all font-bold text-gray-700 shadow-sm"
+                                                        value={editForm.date}
+                                                        onChange={e => setEditForm({ ...editForm, date: e.target.value })}
+                                                        placeholder="Ex: Todo dom às 8h"
+                                                    />
+                                                </div>
+                                                <div className="col-span-2 md:col-span-1">
+                                                    <label className="block text-[10px] md:text-xs font-black text-gray-500 uppercase tracking-widest mb-2 ml-1">Carga Horária</label>
+                                                    <input
+                                                        className="w-full p-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-[#C68D5D]/50 focus:border-[#C68D5D] outline-none transition-all font-bold text-gray-700 shadow-sm"
+                                                        value={editForm.duration}
+                                                        onChange={e => setEditForm({ ...editForm, duration: e.target.value })}
+                                                    />
+                                                </div>
+                                                <div className="col-span-2">
+                                                    <label className="block text-[10px] md:text-xs font-black text-gray-500 uppercase tracking-widest mb-2 ml-1">Capacidade (Apenas números)</label>
+                                                    <input
+                                                        type="number"
+                                                        className="w-full p-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-[#C68D5D]/50 focus:border-[#C68D5D] outline-none transition-all font-bold text-gray-700 shadow-sm"
+                                                        value={editForm.maxPeople}
+                                                        onChange={e => setEditForm({ ...editForm, maxPeople: e.target.value })}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </section>
+
+                                        {/* Block 3: Descrição e Texto */}
+                                        <section className="bg-gray-50/50 p-6 sm:p-8 rounded-[32px] border border-gray-100 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] relative">
+                                            <div className="absolute top-0 right-0 transform translate-x-1/3 sm:translate-x-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 bg-white border-4 border-gray-50 rounded-full text-[#C68D5D] font-black flex items-center justify-center shadow-lg text-sm sm:text-base">4</div>
+                                            <h3 className="font-black text-gray-900 text-xl sm:text-2xl mb-6">Narrativa e Checklist</h3>
+
+                                            <div className="space-y-6">
+                                                <div>
+                                                    <label className="block text-[10px] md:text-xs font-black text-gray-500 uppercase tracking-widest mb-2 ml-1">Resumo do Card (Marketing rápido)</label>
+                                                    <textarea
+                                                        className="w-full p-4 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-[#C68D5D]/50 focus:border-[#C68D5D] outline-none resize-y min-h-[100px] font-medium text-gray-700 shadow-sm leading-relaxed"
+                                                        value={editForm.description}
+                                                        onChange={e => setEditForm({ ...editForm, description: e.target.value })}
+                                                        rows={3}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-[10px] md:text-xs font-black text-gray-500 uppercase tracking-widest mb-2 ml-1">A Experiência (Lido no clique)</label>
+                                                    <textarea
+                                                        className="w-full p-5 bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-[#C68D5D]/50 focus:border-[#C68D5D] outline-none resize-y min-h-[220px] font-medium text-gray-700 leading-relaxed shadow-sm"
+                                                        value={editForm.fullDescription}
+                                                        onChange={e => setEditForm({ ...editForm, fullDescription: e.target.value })}
+                                                        rows={8}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-[10px] md:text-xs font-black text-gray-500 uppercase tracking-widest mb-2 ml-1">O que está incluso? (Enter para novo item)</label>
+                                                    <textarea
+                                                        className="w-full p-4 bg-gray-100 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-gray-300 outline-none font-medium text-sm text-gray-700 shadow-inner leading-relaxed font-mono"
+                                                        value={editForm.featuresString || ''}
+                                                        onChange={e => setEditForm({ ...editForm, featuresString: e.target.value })}
+                                                        rows={6}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </section>
+
+                                        <div className="pt-4 pb-12 text-center">
+                                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest pb-8">Finalize no Botão "Salvar Base de Dados" Acima</p>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                {/* RIGHT: Live Preview Column */}
+                                <div className={`w-full lg:w-1/2 xl:w-5/12 h-full overflow-y-auto custom-scrollbar bg-gradient-to-br from-gray-100 to-gray-50 p-4 sm:p-6 lg:p-10 border-l border-gray-200 relative ${activeTab === 'preview' ? 'block' : 'hidden lg:block'}`}>
+                                    <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-white to-transparent pointer-events-none z-0"></div>
+                                    <div className="w-full max-w-md mx-auto space-y-8 pb-32 min-h-full flex flex-col items-center justify-start relative z-10">
+
+                                        <div className="bg-white/80 backdrop-blur-md px-4 py-2 rounded-xl shadow-sm border border-white flex items-center gap-2 text-gray-600 mb-2 font-black uppercase tracking-widest text-[10px] ring-1 ring-black/5">
+                                            <LayoutList className="w-3.5 h-3.5" /> Como o cliente vê o Card Expandido no Site
+                                        </div>
+
+                                        {/* Preview Widget */}
+                                        <div className="w-full scale-[0.98] origin-top hover:scale-100 transition-transform duration-500">
+                                            {renderPreview()}
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )}
+            </main>
         </div>
     );
 };
