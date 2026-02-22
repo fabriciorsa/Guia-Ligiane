@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import axios from 'axios';
 
 export interface Tour {
     id: number;
@@ -16,119 +17,75 @@ export interface Tour {
     maxPeople: number;
 }
 
-// Dados iniciais (Hardcoded por enquanto)
-const initialTours: Tour[] = [
-    {
-        id: 1,
-        title: 'Ilha Pomonga com LALA RASTA',
-        subtitle: 'No Tototó',
-        description: 'Um passeio relaxante pelo estuário, conhecendo a rica biodiversidade e a cultura local.',
-        fullDescription: 'Explore a Ilha Pomonga a bordo do tradicional Tototó. Um passeio que conecta você com a natureza vibrante do estuário, manguezais e a tranquilidade das águas sergipanas.',
-        duration: '5 horas',
-        date: '01 de Março de 2026',
-        price: '160',
-        images: ['/images/tours/pomonga.jpg', '/images/tours/pomonga.jpg'],
-        features: ['Passeio de Tototó', 'Guia local', 'Almoço típico', 'Parada para banho', 'Seguro viagem'],
-        rating: 4.8,
-        reviews: 124,
-        maxPeople: 20,
-    },
-    {
-        id: 2,
-        title: 'Pacatuba',
-        subtitle: 'Pantanal Sergipano',
-        description: 'Dunas, lagoas e uma paisagem de tirar o fôlego no coração de Sergipe.',
-        fullDescription: 'Conheça o Pantanal Sergipano em Pacatuba. Uma aventura off-road que leva você a dunas intocadas, lagoas cristalinas e mirantes com vistas espetaculares.',
-        duration: '8 horas',
-        date: '08 de Março de 2026',
-        price: '220',
-        images: ['/images/tours/pacatuba.jpg', '/images/tours/pacatuba.jpg'],
-        features: ['Transporte 4x4', 'Guia especializado', 'Lanche de trilha', 'Fotos inclusas', 'Taxas ambientais'],
-        rating: 4.9,
-        reviews: 89,
-        maxPeople: 12,
-    },
-    {
-        id: 3,
-        title: 'Tur 3 Ilhas',
-        subtitle: 'No Tototó',
-        description: 'Um roteiro completo visitando três ilhas paradisíacas em um único dia.',
-        fullDescription: 'Aventure-se no Tur 3 Ilhas a bordo do Tototó. Descubra paisagens únicas, bancos de areia e a vida marinha local em um passeio dinâmico e divertido.',
-        duration: '6 horas',
-        date: '15 de Março de 2026',
-        price: '180',
-        images: ['/images/tours/3ilhas.jpg', '/images/tours/3ilhas.jpg'],
-        features: ['Visita a 3 Ilhas', 'Música a bordo', 'Frutas tropicais', 'Equipamento snorkel', 'Refrigerante e água'],
-        rating: 5.0,
-        reviews: 215,
-        maxPeople: 25,
-    },
-    {
-        id: 4,
-        title: 'Lagoa dos Tambaquis',
-        subtitle: '+ Paraíso da Lagoa (Pirambu)',
-        description: 'Interação com peixes e relaxamento em um complexo de lazer incrível.',
-        fullDescription: 'Visite a famosa Lagoa dos Tambaquis, onde você pode alimentar e nadar com os peixes. Em seguida, relaxe no Paraíso da Lagoa em Pirambu, com estrutura completa.',
-        duration: '7 horas',
-        date: '22 de Março de 2026',
-        price: '150',
-        images: ['/images/tours/tambaquis.jpg', '/images/tours/tambaquis.jpg'],
-        features: ['Entrada na Lagoa', 'Ração para peixes', 'Acesso ao Day Use', 'Transporte Climatizado', 'Almoço não incluso'],
-        rating: 4.7,
-        reviews: 340,
-        maxPeople: 30,
-    },
-    {
-        id: 5,
-        title: 'Trilha Cachoeira Roncador',
-        subtitle: '+ Paraíso da Lagoa (Pirambu)',
-        description: 'Aventura na mata atlântica terminando em uma cachoeira refrescante.',
-        fullDescription: 'Faça a Trilha da Cachoeira do Roncador, encravada na mata. Após a caminhada, descanse e aproveite o dia no clube Paraíso da Lagoa em Pirambu.',
-        duration: '8 horas',
-        date: '29 de Março de 2026',
-        price: '190',
-        images: ['/images/tours/roncador.jpg', '/images/tours/roncador.jpg'],
-        features: ['Guia de trilha', 'Banho de cachoeira', 'Day Use no Clube', 'Kit primeiros socorros', 'Translado'],
-        rating: 4.9,
-        reviews: 156,
-        maxPeople: 15,
-    }
-];
-
 interface TourContextType {
     tours: Tour[];
-    addTour: (tour: Tour) => void;
-    updateTour: (id: number, tour: Partial<Tour>) => void;
-    deleteTour: (id: number) => void;
+    addTour: (tour: Tour) => Promise<void>;
+    updateTour: (id: number, tour: Partial<Tour>) => Promise<void>;
+    deleteTour: (id: number) => Promise<void>;
+    isLoading: boolean;
+    error: string | null;
 }
 
 const TourContext = createContext<TourContextType | undefined>(undefined);
 
+const API_URL = import.meta.env.VITE_API_URL || '/api/tours';
+
 export const TourProvider = ({ children }: { children: ReactNode }) => {
-    // Inicializa com LocalStorage se existir, senão usa initialTours
-    const [tours, setTours] = useState<Tour[]>(() => {
-        const saved = localStorage.getItem('tours');
-        return saved ? JSON.parse(saved) : initialTours;
-    });
+    const [tours, setTours] = useState<Tour[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    const fetchTours = async () => {
+        try {
+            setIsLoading(true);
+            const response = await axios.get(API_URL);
+            setTours(response.data);
+            setError(null);
+        } catch (err) {
+            console.error("Erro ao buscar passeios:", err);
+            setError("Falha ao carregar os passeios do banco de dados.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() => {
-        localStorage.setItem('tours', JSON.stringify(tours));
-    }, [tours]);
+        fetchTours();
+    }, []);
 
-    const addTour = (tour: Tour) => {
-        setTours(prev => [...prev, { ...tour, id: Date.now() }]); // ID temporário
+    const addTour = async (tour: Tour) => {
+        try {
+            await axios.post(API_URL, tour);
+            // Assuming backend returns the new ID, but we just refetch to be safe
+            await fetchTours();
+        } catch (err) {
+            console.error("Erro ao adicionar passeio:", err);
+            throw err;
+        }
     };
 
-    const updateTour = (id: number, updatedTour: Partial<Tour>) => {
-        setTours(prev => prev.map(t => t.id === id ? { ...t, ...updatedTour } : t));
+    const updateTour = async (id: number, updatedTour: Partial<Tour>) => {
+        try {
+            await axios.put(`${API_URL}/${id}`, updatedTour);
+            setTours(prev => prev.map(t => t.id === id ? { ...t, ...updatedTour } : t));
+        } catch (err) {
+            console.error("Erro ao atualizar passeio:", err);
+            throw err;
+        }
     };
 
-    const deleteTour = (id: number) => {
-        setTours(prev => prev.filter(t => t.id !== id));
+    const deleteTour = async (id: number) => {
+        try {
+            await axios.delete(`${API_URL}/${id}`);
+            setTours(prev => prev.filter(t => t.id !== id));
+        } catch (err) {
+            console.error("Erro ao deletar passeio:", err);
+            throw err;
+        }
     };
 
     return (
-        <TourContext.Provider value={{ tours, addTour, updateTour, deleteTour }}>
+        <TourContext.Provider value={{ tours, addTour, updateTour, deleteTour, isLoading, error }}>
             {children}
         </TourContext.Provider>
     );
