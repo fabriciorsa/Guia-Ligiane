@@ -23,9 +23,11 @@ const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, '../dist')));
 
 // Redireciona tudo que não é /api para o index.html (React Router)
-app.get('*', (req, res) => {
+app.use((req, res, next) => {
     if (!req.path.startsWith('/api')) {
         res.sendFile(path.join(__dirname, '../dist/index.html'));
+    } else {
+        next();
     }
 });
 
