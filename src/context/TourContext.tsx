@@ -20,7 +20,7 @@ export interface Tour {
 const initialTours: Tour[] = [
     {
         id: 1,
-        title: 'Ilha Pomonga',
+        title: 'Ilha Pomonga com LALA RASTA',
         subtitle: 'No Tototó',
         description: 'Um passeio relaxante pelo estuário, conhecendo a rica biodiversidade e a cultura local.',
         fullDescription: 'Explore a Ilha Pomonga a bordo do tradicional Tototó. Um passeio que conecta você com a natureza vibrante do estuário, manguezais e a tranquilidade das águas sergipanas.',

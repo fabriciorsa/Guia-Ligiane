@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Menu, X, Home, Info, MapPin, Images, MessageSquare, MessageCircle } from 'lucide-react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { whatsappUrl } from '@/constants/contact';
 
 interface NavigationProps {
