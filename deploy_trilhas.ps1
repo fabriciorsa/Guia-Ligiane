@@ -36,8 +36,8 @@ $Cmd = "
 "
 
 # Execute SSH
-Write-Host "Conectando ao servidor... (Digite a senha se solicitado)" -ForegroundColor Yellow
-ssh -t $Server $Cmd
+Write-Host "Conectando ao servidor..." -ForegroundColor Yellow
+ssh -i deploy_key -t $Server $Cmd
 
 Write-Host "Pressione qualquer tecla para sair..."
 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
