@@ -289,7 +289,7 @@ const Dashboard = () => {
             {/* Sidebar Desktop */}
             <aside className="w-[280px] bg-white border-r border-gray-200 hidden md:flex flex-col z-20 shadow-sm relative shrink-0">
                 <div className="px-8 pt-8 pb-6 flex items-center justify-center border-b border-gray-100/50 mix-blend-multiply">
-                    <img src="/logo-hd.webp" alt="Trilhas de Sergipe Logo" className="w-[120px] object-contain drop-shadow-sm" />
+                    <img src="/images/logo-hd.webp" alt="Trilhas de Sergipe Logo" className="w-[120px] object-contain drop-shadow-sm" />
                 </div>
 
                 <div className="px-8 py-5">
@@ -300,16 +300,6 @@ const Dashboard = () => {
                     <button className="flex items-center gap-3 w-full px-4 py-3.5 bg-[#2A452B] text-white rounded-xl font-bold transition-all shadow-md shadow-[#2A452B]/20 group">
                         <LayoutList className="w-5 h-5 text-white/90 group-hover:scale-110 transition-transform" />
                         <span>Catálogo de Trilhas</span>
-                    </button>
-                    <button disabled className="flex items-center gap-3 w-full px-4 py-3.5 text-gray-500 hover:bg-gray-50 rounded-xl font-medium transition-all group opacity-50 cursor-not-allowed">
-                        <Users className="w-5 h-5 text-gray-400 group-hover:scale-110 transition-transform" />
-                        <span>Lista de Clientes</span>
-                        <span className="ml-auto text-[10px] font-black bg-gray-200 text-gray-500 px-2.5 py-1 rounded-lg">BREVE</span>
-                    </button>
-                    <button disabled className="flex items-center gap-3 w-full px-4 py-3.5 text-gray-500 hover:bg-gray-50 rounded-xl font-medium transition-all group opacity-50 cursor-not-allowed">
-                        <Calendar className="w-5 h-5 text-gray-400 group-hover:scale-110 transition-transform" />
-                        <span>Reservas & Agenda</span>
-                        <span className="ml-auto text-[10px] font-black bg-gray-200 text-gray-500 px-2.5 py-1 rounded-lg">BREVE</span>
                     </button>
                 </nav>
 
@@ -339,7 +329,7 @@ const Dashboard = () => {
             <main className="flex-1 flex flex-col h-[100dvh] overflow-hidden relative z-10 w-full min-w-0">
                 {/* Mobile Header */}
                 <header className="md:hidden bg-white/95 backdrop-blur-md border-b border-gray-100 p-4 sticky top-0 flex justify-between items-center z-30 shrink-0">
-                    <img src="/logo-hd.webp" alt="Logo" className="w-[80px] object-contain mix-blend-multiply" />
+                    <img src="/images/logo-hd.webp" alt="Logo" className="w-[80px] object-contain mix-blend-multiply" />
                     <button onClick={handleLogout} className="p-2.5 text-red-500 bg-red-50/80 rounded-xl active:scale-95 transition-transform"><LogOut className="w-5 h-5" /></button>
                 </header>
 
@@ -373,39 +363,7 @@ const Dashboard = () => {
                                 </div>
                             </div>
 
-                            {/* Stats Row */}
-                            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                                <div className="bg-white p-6 rounded-[24px] shadow-sm border border-gray-100 flex items-center gap-5 relative overflow-hidden group">
-                                    <div className="absolute w-32 h-32 bg-[#2A452B]/5 rounded-full -right-8 -top-8 group-hover:scale-[1.8] transition-transform duration-700 ease-in-out"></div>
-                                    <div className="w-14 h-14 bg-[#2A452B]/5 text-[#2A452B] rounded-[18px] flex items-center justify-center shrink-0">
-                                        <LayoutList className="w-6 h-6" />
-                                    </div>
-                                    <div className="z-10">
-                                        <p className="text-xs font-black tracking-widest text-gray-400 uppercase">Trilhas no Ar</p>
-                                        <h4 className="text-3xl font-black text-gray-900 mt-1">{tours.length}</h4>
-                                    </div>
-                                </div>
-                                <div className="bg-white p-6 rounded-[24px] shadow-sm border border-gray-100 flex items-center gap-5 relative overflow-hidden group">
-                                    <div className="absolute w-32 h-32 bg-yellow-50 rounded-full -right-8 -top-8 group-hover:scale-[1.8] transition-transform duration-700 ease-in-out"></div>
-                                    <div className="w-14 h-14 bg-yellow-50 text-yellow-500 rounded-[18px] flex items-center justify-center shrink-0">
-                                        <Star className="w-6 h-6" />
-                                    </div>
-                                    <div className="z-10">
-                                        <p className="text-xs font-black tracking-widest text-gray-400 uppercase">Avaliação Global</p>
-                                        <h4 className="text-3xl font-black text-gray-900 mt-1 flex items-end">4.9<span className="text-xs text-yellow-500 font-bold ml-1.5 mb-2 rounded-md bg-yellow-100 px-1.5 py-[2px]">- 5.0</span></h4>
-                                    </div>
-                                </div>
-                                <div className="bg-white p-6 rounded-[24px] shadow-sm border border-gray-100 flex items-center gap-5 relative overflow-hidden group sm:col-span-1 lg:col-span-2">
-                                    <div className="absolute w-32 h-32 bg-blue-50 rounded-full -right-8 -top-8 group-hover:scale-[1.8] transition-transform duration-700 ease-in-out"></div>
-                                    <div className="w-14 h-14 bg-blue-50 text-blue-500 rounded-[18px] flex items-center justify-center shrink-0">
-                                        <Users className="w-6 h-6" />
-                                    </div>
-                                    <div className="z-10 w-full">
-                                        <p className="text-xs font-black tracking-widest text-gray-400 uppercase">Capacidade Total</p>
-                                        <h4 className="text-3xl font-black text-gray-900 mt-1 flex items-end">{tours.reduce((acc: number, tour: any) => acc + (parseInt(tour.maxPeople) || 0), 0)} <span className="text-xs font-bold text-gray-400 ml-1.5 mb-2 uppercase">Vagas/dia</span></h4>
-                                    </div>
-                                </div>
-                            </div>
+
 
                             {/* Tour Listing */}
                             {filteredTours.length > 0 ? (
