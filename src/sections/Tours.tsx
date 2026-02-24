@@ -123,7 +123,7 @@ const Tours = () => {
 
                                 {/* Price Badge */}
                                 <div className="absolute top-4 right-4 bg-brand-terracotta text-white px-4 py-2 rounded-full text-sm font-bold shadow-sm">
-                                    R$ {tour.price}
+                                    R$ {String(tour.price).replace('.', ',')}
                                 </div>
 
                                 {/* Date Badge */}
@@ -299,7 +299,7 @@ const Tours = () => {
                                     <div>
                                         <p className="text-sm text-brand-brown mb-1">Investimento</p>
                                         <p className="text-3xl font-bold text-brand-terracotta">
-                                            R$ {selectedTour.price}
+                                            R$ {String(selectedTour.price).replace('.', ',')}
                                             <span className="text-sm font-normal text-brand-brown">/pessoa</span>
                                         </p>
                                     </div>

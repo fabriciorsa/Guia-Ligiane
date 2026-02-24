@@ -268,7 +268,7 @@ const Dashboard = () => {
                                 <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-0.5">Valor do Ingresso</p>
                                 <p className="text-3xl font-black text-[#2A452B]">
                                     <span className="text-xl font-bold mr-1 align-top">R$</span>
-                                    {previewData.price || '0.00'}
+                                    {previewData.price ? String(previewData.price).replace('.', ',') : '0,00'}
                                 </p>
                             </div>
                         </div>
@@ -357,9 +357,6 @@ const Dashboard = () => {
                                             className="block w-full pl-11 pr-4 py-3.5 border border-gray-200 rounded-2xl leading-5 bg-gray-50/50 placeholder-gray-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-[#C68D5D]/50 focus:border-[#C68D5D] transition-all font-bold text-gray-900"
                                         />
                                     </div>
-                                    <button onClick={handleAddNew} className="flex items-center justify-center gap-2 px-8 py-3.5 bg-[#C68D5D] text-white font-black rounded-2xl shadow-lg shadow-[#C68D5D]/20 hover:bg-[#b07849] hover:-translate-y-0.5 transition-all active:scale-95 whitespace-nowrap">
-                                        <Plus className="w-5 h-5 flex-shrink-0" /> Criar Rascunho
-                                    </button>
                                 </div>
                             </div>
 
@@ -430,7 +427,7 @@ const Dashboard = () => {
                                                 <div className="pt-4 border-t border-gray-100 flex items-center justify-between mt-auto bg-gray-50/50 p-4 rounded-2xl">
                                                     <div>
                                                         <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest block mb-1">Preço Atual</span>
-                                                        <span className="font-black text-[#C68D5D] text-2xl">R$ {parseFloat(tour.price).toFixed(2)}</span>
+                                                        <span className="font-black text-[#C68D5D] text-2xl">R$ {parseFloat(tour.price || 0).toFixed(2).replace('.', ',')}</span>
                                                     </div>
                                                     <div className="flex flex-col items-end gap-1">
                                                         <div className="flex items-center gap-1.5 text-xs font-bold text-gray-600 bg-white px-2.5 py-1 rounded-md shadow-sm border border-gray-100">
