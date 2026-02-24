@@ -97,8 +97,10 @@ router.post('/', async (req, res) => {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 5.0, 0, ?)
         `;
 
+        const formattedPrice = typeof price === 'string' ? price.replace(',', '.') : price;
+
         const [result] = await pool.query(query, [
-            title, subtitle, description, fullDescription, duration, date, price, imagesJson, featuresJson, maxPeople
+            title, subtitle, description, fullDescription, duration, date, formattedPrice, imagesJson, featuresJson, maxPeople
         ]);
 
         res.status(201).json({ id: result.insertId, message: 'Tour created successfully' });
@@ -141,8 +143,10 @@ router.put('/:id', async (req, res) => {
             WHERE id = ?
         `;
 
+        const formattedPrice = typeof price === 'string' ? price.replace(',', '.') : price;
+
         await pool.query(query, [
-            title, subtitle, description, fullDescription, duration, date, price, imagesJson, featuresJson, maxPeople, id
+            title, subtitle, description, fullDescription, duration, date, formattedPrice, imagesJson, featuresJson, maxPeople, id
         ]);
 
         res.json({ message: 'Tour updated successfully' });
