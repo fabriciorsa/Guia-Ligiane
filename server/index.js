@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import tourRoutes from './routes/tours.js';
+import testimonialsRoutes from './routes/testimonials.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -17,6 +18,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Routes
 app.use('/api/tours', tourRoutes);
+app.use('/api/testimonials', testimonialsRoutes);
 
 // Servir arquivos estáticos do Vite em produção
 const __filename = fileURLToPath(import.meta.url);

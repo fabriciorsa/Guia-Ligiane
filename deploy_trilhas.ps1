@@ -1,5 +1,5 @@
 $Server = "root@177.47.183.13"
-$RemotePath = "/var/www/trilhas"
+$RemotePath = "/var/www/guia-ligiane"
 $Repo = "https://github.com/fabriciorsa/Guia-Ligiane.git"
 
 Write-Host "Iniciando Deploy em $Server..." -ForegroundColor Green
@@ -26,10 +26,10 @@ $Cmd = "
     npm run build
     
     echo '--- Gerenciamento de Processo (PM2) ---'
-    if pm2 list | grep -q 'trilhas'; then
-        pm2 restart trilhas
+    if pm2 list | grep -q 'guia-ligiane'; then
+        pm2 restart guia-ligiane
     else
-        pm2 start npm --name trilhas -- start
+        pm2 start npm --name guia-ligiane -- start
     fi
     
     echo '--- Deploy Concluído com Sucesso! ---'

@@ -1,8 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTours } from '../../context/TourContext';
-import { Edit, Trash, LogOut, Save, X, Calendar, Clock, Users, Star, MessageCircle, LayoutList, Eye, PenTool, Upload, Tag, RefreshCcw, Image as ImageIcon } from 'lucide-react';
+import { Edit, Trash, LogOut, Save, X, Calendar, Clock, Users, Star, MessageCircle, LayoutList, Eye, PenTool, Upload, Tag, RefreshCcw, Image as ImageIcon, MessageSquare } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
+import axios from 'axios';
 
 const Dashboard = () => {
     const { tours, addTour, updateTour, deleteTour, error, isLoading } = useTours();
@@ -12,6 +13,38 @@ const Dashboard = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
     const [previewImageIndex, setPreviewImageIndex] = useState(0);
+
+    const [dashboardTab, setDashboardTab] = useState<'tours' | 'testimonials'>('tours');
+    const [testimonials, setTestimonials] = useState<any[]>([]);
+
+    useEffect(() => {
+        if (dashboardTab === 'testimonials') {
+            fetchTestimonials();
+        }
+    }, [dashboardTab]);
+
+    const fetchTestimonials = async () => {
+        try {
+            const response = await axios.get('/api/testimonials');
+            setTestimonials(response.data);
+        } catch (error) {
+            console.error("Error fetching testimonials", error);
+            toast.error("Erro ao carregar os depoimentos");
+        }
+    };
+
+    const handleDeleteTestimonial = async (id: number) => {
+        if (confirm('Tem certeza que deseja excluir este depoimento? Isso refletirá imediatamente no site.')) {
+            try {
+                await axios.delete(`/api/testimonials/${id}`);
+                setTestimonials(testimonials.filter(t => t.id !== id));
+                toast.success('Depoimento excluído com sucesso');
+            } catch (error) {
+                console.error("Error deleting testimonial", error);
+                toast.error("Erro ao excluir o depoimento");
+            }
+        }
+    };
 
     const handleLogout = () => {
         localStorage.removeItem('isAuthenticated');
@@ -296,10 +329,18 @@ const Dashboard = () => {
                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Painel Administrativo</p>
                 </div>
 
-                <nav className="flex-1 px-4 space-y-1">
-                    <button className="flex items-center gap-3 w-full px-4 py-3.5 bg-[#2A452B] text-white rounded-xl font-bold transition-all shadow-md shadow-[#2A452B]/20 group">
-                        <LayoutList className="w-5 h-5 text-white/90 group-hover:scale-110 transition-transform" />
+                <nav className="flex-1 px-4 space-y-2 mt-4">
+                    <button
+                        onClick={() => setDashboardTab('tours')}
+                        className={`flex items-center gap-3 w-full px-4 py-3.5 rounded-xl font-bold transition-all shadow-sm group ${dashboardTab === 'tours' ? 'bg-[#2A452B] text-white shadow-[#2A452B]/20' : 'text-gray-600 hover:bg-gray-100 hover:text-[#2A452B]'}`}>
+                        <LayoutList className={`w-5 h-5 transition-transform ${dashboardTab === 'tours' ? 'text-white/90 group-hover:scale-110' : ''}`} />
                         <span>Catálogo de Trilhas</span>
+                    </button>
+                    <button
+                        onClick={() => setDashboardTab('testimonials')}
+                        className={`flex items-center gap-3 w-full px-4 py-3.5 rounded-xl font-bold transition-all shadow-sm group ${dashboardTab === 'testimonials' ? 'bg-[#2A452B] text-white shadow-[#2A452B]/20' : 'text-gray-600 hover:bg-gray-100 hover:text-[#2A452B]'}`}>
+                        <MessageSquare className={`w-5 h-5 transition-transform ${dashboardTab === 'testimonials' ? 'text-white/90 group-hover:scale-110' : ''}`} />
+                        <span>Avaliações</span>
                     </button>
                 </nav>
 
@@ -341,8 +382,15 @@ const Dashboard = () => {
                             {/* Page Header */}
                             <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5 bg-white p-6 md:p-8 rounded-[32px] shadow-sm border border-gray-100">
                                 <div>
-                                    <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight">Catálogo de Trilhas</h2>
-                                    <p className="text-gray-500 mt-1 md:mt-2 font-medium text-sm md:text-base">Controle total sobre as opções oferecidas aos seus clientes no site principal.</p>
+                                    <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight">
+                                        {dashboardTab === 'tours' ? 'Catálogo de Trilhas' : 'Avaliações de Clientes'}
+                                    </h2>
+                                    <p className="text-gray-500 mt-1 md:mt-2 font-medium text-sm md:text-base">
+                                        {dashboardTab === 'tours'
+                                            ? 'Controle total sobre as opções oferecidas aos seus clientes no site principal.'
+                                            : 'Gerencie os depoimentos deixados pelos aventureiros que já viajaram com você.'
+                                        }
+                                    </p>
                                 </div>
                                 <div className="flex flex-col sm:flex-row gap-4 w-full xl:w-auto shrink-0 mt-2 xl:mt-0">
                                     <div className="relative w-full sm:w-[320px]">
@@ -362,98 +410,161 @@ const Dashboard = () => {
 
 
 
-                            {/* Tour Listing */}
-                            {filteredTours.length > 0 ? (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                                    {filteredTours.map((tour: any) => (
-                                        <div key={tour.id} className="bg-white rounded-[32px] shadow-sm border border-gray-100 overflow-hidden group hover:shadow-2xl hover:shadow-black/5 hover:-translate-y-1.5 transition-all duration-300 flex flex-col h-full ring-1 ring-black/5">
-                                            <div className="relative h-60 overflow-hidden bg-gray-50/50 p-2">
-                                                <div className="w-full h-full rounded-[24px] overflow-hidden relative">
-                                                    {tour.images?.length > 0 ? (
-                                                        <img
-                                                            src={tour.images[0]}
-                                                            alt={tour.title}
-                                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[800ms] ease-out"
-                                                            onError={(e) => (e.currentTarget.src = 'https://placehold.co/600x400?text=Sem+Foto')}
-                                                        />
-                                                    ) : (
-                                                        <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-300">
-                                                            <ImageIcon className="w-12 h-12" />
+                            {dashboardTab === 'tours' ? (
+                                <>
+                                    {/* Tour Listing */}
+                                    {filteredTours.length > 0 ? (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                                            {filteredTours.map((tour: any) => (
+                                                <div key={tour.id} className="bg-white rounded-[32px] shadow-sm border border-gray-100 overflow-hidden group hover:shadow-2xl hover:shadow-black/5 hover:-translate-y-1.5 transition-all duration-300 flex flex-col h-full ring-1 ring-black/5">
+                                                    <div className="relative h-60 overflow-hidden bg-gray-50/50 p-2">
+                                                        <div className="w-full h-full rounded-[24px] overflow-hidden relative">
+                                                            {tour.images?.length > 0 ? (
+                                                                <img
+                                                                    src={tour.images[0]}
+                                                                    alt={tour.title}
+                                                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[800ms] ease-out"
+                                                                    onError={(e) => (e.currentTarget.src = 'https://placehold.co/600x400?text=Sem+Foto')}
+                                                                />
+                                                            ) : (
+                                                                <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-300">
+                                                                    <ImageIcon className="w-12 h-12" />
+                                                                </div>
+                                                            )}
+
+                                                            <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none" />
+
+                                                            <div className="absolute top-4 left-4 flex gap-1.5">
+                                                                <span className="bg-[#2A452B]/90 backdrop-blur-md text-white text-[10px] uppercase font-black px-3 py-1.5 rounded-xl shadow-sm border border-white/10">
+                                                                    Público
+                                                                </span>
+                                                                {tour.date && (
+                                                                    <span className="bg-white/20 backdrop-blur-md text-white text-[10px] uppercase font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-sm border border-white/10">
+                                                                        <Calendar className="w-3.5 h-3.5" /> {tour.date}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+
+                                                            {/* Hover Overlay Actions */}
+                                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 backdrop-blur-[2px]">
+                                                                <button
+                                                                    onClick={() => handleEdit(tour)}
+                                                                    className="px-6 py-3 bg-white text-[#2A452B] font-black rounded-xl hover:bg-gray-100 transition-all shadow-lg active:scale-95 flex items-center gap-2"
+                                                                >
+                                                                    <Edit className="w-4 h-4" /> Editar
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleDelete(tour.id)}
+                                                                    className="w-12 h-12 bg-red-500 text-white rounded-xl flex items-center justify-center hover:bg-red-600 transition-all shadow-lg active:scale-95"
+                                                                    title="Excluir Permanentemente"
+                                                                >
+                                                                    <Trash className="w-5 h-5" />
+                                                                </button>
+                                                            </div>
                                                         </div>
-                                                    )}
+                                                    </div>
 
-                                                    <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none" />
-
-                                                    <div className="absolute top-4 left-4 flex gap-1.5">
-                                                        <span className="bg-[#2A452B]/90 backdrop-blur-md text-white text-[10px] uppercase font-black px-3 py-1.5 rounded-xl shadow-sm border border-white/10">
-                                                            Público
-                                                        </span>
-                                                        {tour.date && (
-                                                            <span className="bg-white/20 backdrop-blur-md text-white text-[10px] uppercase font-black px-3 py-1.5 rounded-xl flex items-center gap-1.5 shadow-sm border border-white/10">
-                                                                <Calendar className="w-3.5 h-3.5" /> {tour.date}
-                                                            </span>
+                                                    <div className="p-6 md:p-8 flex-1 flex flex-col pt-4">
+                                                        <h3 className="text-2xl font-black text-gray-900 line-clamp-2 leading-tight mb-2 group-hover:text-[#2A452B] transition-colors">{tour.title}</h3>
+                                                        {tour.subtitle && (
+                                                            <p className="text-sm font-bold text-[#C68D5D] uppercase tracking-wide mb-3">{tour.subtitle}</p>
                                                         )}
-                                                    </div>
 
-                                                    {/* Hover Overlay Actions */}
-                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 backdrop-blur-[2px]">
-                                                        <button
-                                                            onClick={() => handleEdit(tour)}
-                                                            className="px-6 py-3 bg-white text-[#2A452B] font-black rounded-xl hover:bg-gray-100 transition-all shadow-lg active:scale-95 flex items-center gap-2"
-                                                        >
-                                                            <Edit className="w-4 h-4" /> Editar
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleDelete(tour.id)}
-                                                            className="w-12 h-12 bg-red-500 text-white rounded-xl flex items-center justify-center hover:bg-red-600 transition-all shadow-lg active:scale-95"
-                                                            title="Excluir Permanentemente"
-                                                        >
-                                                            <Trash className="w-5 h-5" />
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                                        <p className="text-gray-500 text-sm mb-6 line-clamp-3 leading-relaxed flex-1 font-medium">
+                                                            {tour.description}
+                                                        </p>
 
-                                            <div className="p-6 md:p-8 flex-1 flex flex-col pt-4">
-                                                <h3 className="text-2xl font-black text-gray-900 line-clamp-2 leading-tight mb-2 group-hover:text-[#2A452B] transition-colors">{tour.title}</h3>
-                                                {tour.subtitle && (
-                                                    <p className="text-sm font-bold text-[#C68D5D] uppercase tracking-wide mb-3">{tour.subtitle}</p>
-                                                )}
-
-                                                <p className="text-gray-500 text-sm mb-6 line-clamp-3 leading-relaxed flex-1 font-medium">
-                                                    {tour.description}
-                                                </p>
-
-                                                <div className="pt-4 border-t border-gray-100 flex items-center justify-between mt-auto bg-gray-50/50 p-4 rounded-2xl">
-                                                    <div>
-                                                        <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest block mb-1">Preço Atual</span>
-                                                        <span className="font-black text-[#C68D5D] text-2xl">R$ {parseFloat(tour.price || 0).toFixed(2).replace('.', ',')}</span>
-                                                    </div>
-                                                    <div className="flex flex-col items-end gap-1">
-                                                        <div className="flex items-center gap-1.5 text-xs font-bold text-gray-600 bg-white px-2.5 py-1 rounded-md shadow-sm border border-gray-100">
-                                                            <Clock className="w-3.5 h-3.5 text-gray-400" /> {tour.duration}
-                                                        </div>
-                                                        <div className="flex items-center gap-1.5 text-xs font-bold text-gray-600 bg-white px-2.5 py-1 rounded-md shadow-sm border border-gray-100">
-                                                            <Users className="w-3.5 h-3.5 text-gray-400" /> Max {tour.maxPeople}
+                                                        <div className="pt-4 border-t border-gray-100 flex items-center justify-between mt-auto bg-gray-50/50 p-4 rounded-2xl">
+                                                            <div>
+                                                                <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest block mb-1">Preço Atual</span>
+                                                                <span className="font-black text-[#C68D5D] text-2xl">R$ {parseFloat(tour.price || 0).toFixed(2).replace('.', ',')}</span>
+                                                            </div>
+                                                            <div className="flex flex-col items-end gap-1">
+                                                                <div className="flex items-center gap-1.5 text-xs font-bold text-gray-600 bg-white px-2.5 py-1 rounded-md shadow-sm border border-gray-100">
+                                                                    <Clock className="w-3.5 h-3.5 text-gray-400" /> {tour.duration}
+                                                                </div>
+                                                                <div className="flex items-center gap-1.5 text-xs font-bold text-gray-600 bg-white px-2.5 py-1 rounded-md shadow-sm border border-gray-100">
+                                                                    <Users className="w-3.5 h-3.5 text-gray-400" /> Max {tour.maxPeople}
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            ))}
                                         </div>
-                                    ))}
-                                </div>
+                                    ) : (
+                                        <div className="bg-white rounded-[32px] border border-gray-100 p-16 text-center shadow-sm">
+                                            <div className="w-24 h-24 bg-gray-50 rounded-[24px] flex items-center justify-center mx-auto mb-6 text-gray-300">
+                                                <Tag className="w-10 h-10" />
+                                            </div>
+                                            <h3 className="text-2xl font-black text-gray-900 mb-2">Poxa, nenhuma trilha.</h3>
+                                            <p className="text-gray-500 max-w-md mx-auto font-medium">
+                                                Parece que não temos nenhuma trilha cadastrada ainda ou sua busca não retornou resultados.
+                                            </p>
+                                            <button onClick={handleAddNew} className="mx-auto mt-8 flex items-center justify-center gap-2 px-8 py-3.5 bg-[#2A452B] text-white font-black rounded-xl shadow-lg shadow-[#2A452B]/20 hover:bg-[#1f3320] transition-all active:scale-95">
+                                                Adicionar Minha Primeira Trilha
+                                            </button>
+                                        </div>
+                                    )}
+                                </>
                             ) : (
-                                <div className="bg-white rounded-[32px] border border-gray-100 p-16 text-center shadow-sm">
-                                    <div className="w-24 h-24 bg-gray-50 rounded-[24px] flex items-center justify-center mx-auto mb-6 text-gray-300">
-                                        <Tag className="w-10 h-10" />
-                                    </div>
-                                    <h3 className="text-2xl font-black text-gray-900 mb-2">Poxa, nenhuma trilha.</h3>
-                                    <p className="text-gray-500 max-w-md mx-auto font-medium">
-                                        Parece que não temos nenhuma trilha cadastrada ainda ou sua busca não retornou resultados.
-                                    </p>
-                                    <button onClick={handleAddNew} className="mx-auto mt-8 flex items-center justify-center gap-2 px-8 py-3.5 bg-[#2A452B] text-white font-black rounded-xl shadow-lg shadow-[#2A452B]/20 hover:bg-[#1f3320] transition-all active:scale-95">
-                                        Adicionar Minha Primeira Trilha
-                                    </button>
+                                /* Testimonials Listing */
+                                <div className="bg-white rounded-[32px] shadow-sm border border-gray-100 overflow-hidden ring-1 ring-black/5">
+                                    {testimonials.length > 0 ? (
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full text-left border-collapse">
+                                                <thead>
+                                                    <tr className="bg-gray-50/50 border-b border-gray-100">
+                                                        <th className="p-5 font-black text-gray-900 text-sm">Cliente</th>
+                                                        <th className="p-5 font-black text-gray-900 text-sm">Comentário</th>
+                                                        <th className="p-5 font-black text-gray-900 text-sm w-24">Avaliação</th>
+                                                        <th className="p-5 font-black text-gray-900 text-sm w-32">Data</th>
+                                                        <th className="p-5 font-black text-gray-900 text-sm w-20 text-center">Ações</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-gray-100">
+                                                    {testimonials.map((testimonial) => (
+                                                        <tr key={testimonial.id} className="hover:bg-gray-50/30 transition-colors">
+                                                            <td className="p-5">
+                                                                <p className="font-bold text-gray-900">{testimonial.name}</p>
+                                                                <p className="text-xs text-gray-500 mt-0.5">{testimonial.city_role}</p>
+                                                            </td>
+                                                            <td className="p-5">
+                                                                <p className="text-sm border-l-2 border-[#2A452B]/20 pl-3 text-gray-600 line-clamp-2" title={testimonial.text}>"{testimonial.text}"</p>
+                                                            </td>
+                                                            <td className="p-5">
+                                                                <div className="flex gap-0.5">
+                                                                    {[...Array(testimonial.rating || 5)].map((_, i) => (
+                                                                        <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                                                    ))}
+                                                                </div>
+                                                            </td>
+                                                            <td className="p-5 text-sm font-medium text-gray-500">
+                                                                {new Date(testimonial.created_at || new Date()).toLocaleDateString('pt-BR')}
+                                                            </td>
+                                                            <td className="p-5 text-center">
+                                                                <button
+                                                                    onClick={() => handleDeleteTestimonial(testimonial.id)}
+                                                                    className="w-10 h-10 bg-red-50 text-red-500 rounded-xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-sm active:scale-95 inline-flex"
+                                                                    title="Excluir Depoimento"
+                                                                >
+                                                                    <Trash className="w-5 h-5" />
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    ) : (
+                                        <div className="p-16 text-center text-gray-500 flex flex-col items-center">
+                                            <div className="w-20 h-20 bg-gray-50 rounded-[20px] flex items-center justify-center mb-4">
+                                                <MessageSquare className="w-8 h-8 text-gray-300" />
+                                            </div>
+                                            <h3 className="text-xl font-black text-gray-900 mb-1">Nenhum depoimento.</h3>
+                                            <p className="text-sm max-w-sm">Ainda não há nenhum depoimento cadastrado em seu banco de dados.</p>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>

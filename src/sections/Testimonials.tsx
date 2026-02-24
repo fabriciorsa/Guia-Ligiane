@@ -1,40 +1,32 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Star, Quote, ChevronLeft, ChevronRight, Sailboat } from 'lucide-react';
+import { Star, Quote, ChevronLeft, ChevronRight, Sailboat, Plus, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Dialog, DialogContent, DialogHeader } from '../components/ui/dialog';
+import axios from 'axios';
+import { toast } from 'sonner';
 
-const testimonials = [
+const initialTestimonials = [
   {
     id: 1,
     name: 'Maria Silva',
-    role: 'São Paulo, SP',
-    avatar: 'MS',
-    rating: 5,
+    city_role: 'São Paulo, SP',
     text: 'A experiência com a Trilhas de Sergipe foi transformadora. Não foi apenas um passeio, foi um mergulho profundo na beleza natural da ilha com um atendimento impecável.',
+    rating: 5,
   },
   {
     id: 2,
     name: 'João Santos',
-    role: 'Rio de Janeiro, RJ',
-    avatar: 'JS',
-    rating: 5,
+    city_role: 'Rio de Janeiro, RJ',
     text: 'Sabe aquele momento que você quer parar o tempo? Foi assim em cada parada. O roteiro exclusivo fora do circuito turístico tradicional fez toda a diferença.',
+    rating: 5,
   },
   {
     id: 3,
     name: 'Ana Costa',
-    role: 'Belo Horizonte, MG',
-    avatar: 'AC',
-    rating: 5,
+    city_role: 'Belo Horizonte, MG',
     text: 'Guias que realmente conhecem e respeitam a natureza. A sensação de segurança e exclusividade transformou nossa viagem em família.',
-  },
-  {
-    id: 4,
-    name: 'Pedro Lima',
-    role: 'Curitiba, PR',
-    avatar: 'PL',
     rating: 5,
-    text: 'O luau foi simplesmente mágico! A combinação perfeita de gastronomia local, música suave e o som do mar. Uma memória para a vida toda.',
-  },
+  }
 ];
 
 const variants = {
@@ -64,8 +56,53 @@ const Testimonials = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Sync activeIndex with page from framer-motion logic
-  const activeTestimonialIndex = ((page % testimonials.length) + testimonials.length) % testimonials.length;
+  const [testimonials, setTestimonials] = useState<any[]>(initialTestimonials);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({ name: '', city_role: '', text: '', rating: 5 });
+
+  const activeTestimonialIndex = testimonials.length > 0 ? ((page % testimonials.length) + testimonials.length) % testimonials.length : 0;
+
+  useEffect(() => {
+    fetchTestimonials();
+  }, []);
+
+  const fetchTestimonials = async () => {
+    try {
+      const response = await axios.get('/api/testimonials');
+      if (response.data && response.data.length > 0) {
+        setTestimonials(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching testimonials", error);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      await axios.post('/api/testimonials', formData);
+      toast.success('Depoimento enviado com sucesso! Obrigado!');
+      setFormData({ name: '', city_role: '', text: '', rating: 5 });
+      setIsModalOpen(false);
+      fetchTestimonials();
+    } catch (error) {
+      console.error("Error submitting testimonial", error);
+      toast.error('Erro ao enviar depoimento. Tente novamente.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const getInitials = (name: string) => {
+    if (!name) return 'User';
+    const names = name.split(' ');
+    if (names.length >= 2) {
+      return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
+  };
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -165,6 +202,14 @@ const Testimonials = () => {
               Veja o que nossos aventureiros têm a dizer sobre seus momentos conosco.
             </p>
 
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="group flex items-center gap-2 px-8 py-4 bg-[#365A38] text-white font-bold rounded-full hover:bg-[#2C2416] transition-all duration-300 hover:-translate-y-1 shadow-lg shadow-[#365A38]/30 mb-8"
+            >
+              <Plus className="w-5 h-5 transition-transform group-hover:rotate-90" />
+              Deixe seu Depoimento
+            </button>
+
             {/* Decoration Quote */}
             <Quote className="w-24 h-24 text-[#365A38]/10 hidden lg:block ml-10" />
           </div>
@@ -214,14 +259,14 @@ const Testimonials = () => {
                     {/* Author Info */}
                     <div className="flex items-center gap-5 pt-6 border-t border-[#365A38]/10 mt-auto">
                       <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#365A38] to-[#8B6F4E] flex items-center justify-center text-white text-xl font-bold border-4 border-white shadow-lg flex-shrink-0">
-                        {testimonials[activeTestimonialIndex].avatar}
+                        {getInitials(testimonials[activeTestimonialIndex].name)}
                       </div>
                       <div>
                         <cite className="not-italic block text-xl font-bold text-[#2C2416]">
                           {testimonials[activeTestimonialIndex].name}
                         </cite>
                         <span className="block text-sm text-[#5C4A3A] font-medium mt-1">
-                          {testimonials[activeTestimonialIndex].role}
+                          {testimonials[activeTestimonialIndex].city_role}
                         </span>
                       </div>
                     </div>
@@ -271,6 +316,86 @@ const Testimonials = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal de Depoimento */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-md bg-brand-beige-light border-none p-0 overflow-hidden">
+          <div className="p-6 md:p-8 relative">
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="absolute top-4 right-4 text-brand-brown hover:text-brand-terracotta transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <DialogHeader className="mb-6">
+              <h3 className="text-2xl font-bold text-brand-text-dark">Sua Experiência</h3>
+              <p className="text-brand-brown-dark text-sm mt-1">Compartilhe como foi viajar com a Guia Ligiane.</p>
+            </DialogHeader>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-brand-brown mb-1">Seu Nome</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-4 py-3 rounded-lg border border-brand-brown/20 focus:border-brand-terracotta focus:ring-1 focus:ring-brand-terracotta outline-none transition-all bg-white"
+                  placeholder="Ex: Maria Silva"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-brand-brown mb-1">De onde você é?</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.city_role}
+                  onChange={(e) => setFormData({ ...formData, city_role: e.target.value })}
+                  className="w-full px-4 py-3 rounded-lg border border-brand-brown/20 focus:border-brand-terracotta focus:ring-1 focus:ring-brand-terracotta outline-none transition-all bg-white"
+                  placeholder="Ex: Aracaju, SE"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-brand-brown mb-1">Nota (1 a 5)</label>
+                <div className="flex gap-2">
+                  {[1, 2, 3, 4, 5].map((num) => (
+                    <button
+                      key={num}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, rating: num })}
+                      className="p-1 focus:outline-none"
+                    >
+                      <Star className={`w-8 h-8 ${formData.rating >= num ? 'fill-[#E5B946] text-[#E5B946]' : 'text-gray-300'} transition-colors`} />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-brand-brown mb-1">Seu Comentário</label>
+                <textarea
+                  required
+                  value={formData.text}
+                  onChange={(e) => setFormData({ ...formData, text: e.target.value })}
+                  rows={4}
+                  className="w-full px-4 py-3 rounded-lg border border-brand-brown/20 focus:border-brand-terracotta focus:ring-1 focus:ring-brand-terracotta outline-none transition-all bg-white resize-none"
+                  placeholder="Conte-nos como foi seu passeio..."
+                ></textarea>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full py-4 mt-2 bg-brand-terracotta text-white font-bold rounded-lg shadow-lg shadow-brand-terracotta/20 hover:bg-brand-brown-dark transition-all active:scale-95 disabled:opacity-50"
+              >
+                {isSubmitting ? 'Enviando...' : 'Enviar Depoimento'}
+              </button>
+            </form>
+          </div>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };
