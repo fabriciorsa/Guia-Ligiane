@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Clock, ChevronLeft, ChevronRight, MapPin, Users, Star, MessageCircle, X, Calendar } from 'lucide-react';
+import { Clock, ChevronLeft, ChevronRight, MapPin, Users, MessageCircle, X, Calendar } from 'lucide-react';
 import {
     Dialog,
     DialogContent,
@@ -55,7 +55,8 @@ const Tours = () => {
     };
 
     const generateWhatsAppLink = (tour: Tour) => {
-        const message = `Olá! Gostaria de reservar o passeio "${tour.title}" para o dia ${tour.date}.`;
+        const formattedPrice = String(tour.price).replace('.', ',');
+        const message = `Olá! Tenho interesse no roteiro "${tour.title}" para o dia ${tour.date}.\nValor do site: R$ ${formattedPrice}.\nPoderiam me passar mais informações?`;
         return whatsappUrl(message);
     };
 
@@ -130,12 +131,6 @@ const Tours = () => {
                                 <div className="absolute top-4 left-4 bg-brand-gold text-brand-text-dark px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1 shadow-sm">
                                     <Calendar className="w-3 h-3 text-brand-text-dark" />
                                     {tour.date}
-                                </div>
-
-                                {/* Rating */}
-                                <div className="absolute bottom-4 left-4 flex items-center gap-1">
-                                    <Star className="w-4 h-4 fill-brand-gold text-brand-gold" />
-                                    <span className="text-white text-sm font-medium">{tour.rating}</span>
                                 </div>
                             </div>
 
@@ -263,10 +258,6 @@ const Tours = () => {
                                         <div className="flex items-center gap-1">
                                             <MapPin className="w-4 h-4" />
                                             <span>Sergipe, Brasil</span>
-                                        </div>
-                                        <div className="flex items-center gap-1">
-                                            <Star className="w-4 h-4 fill-brand-gold text-brand-gold" />
-                                            <span>{selectedTour.rating}</span>
                                         </div>
                                     </div>
                                 </DialogHeader>
