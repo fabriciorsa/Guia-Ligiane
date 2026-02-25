@@ -82,7 +82,7 @@ const Dashboard = () => {
         }
     };
 
-    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (!files) return;
 
@@ -93,21 +93,67 @@ const Dashboard = () => {
         }
 
         const filesToProcess = Array.from(files).slice(0, remainingSlots);
-        toast.info('Processando imagens...');
+        toast.loading('Otimizando imagens para alta performance...', { id: 'upload-toast' });
 
-        filesToProcess.forEach(file => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setEditForm((prev: any) => ({
-                    ...prev,
-                    images: [...(prev.images || []), reader.result as string]
-                }));
-            };
-            reader.readAsDataURL(file);
-        });
+        const processImage = (file: File): Promise<string> => {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
 
-        // Reset input
-        e.target.value = '';
+                        // Limit dimensions (max 1200px)
+                        const MAX_SIZE = 1200;
+                        if (width > height) {
+                            if (width > MAX_SIZE) {
+                                height *= MAX_SIZE / width;
+                                width = MAX_SIZE;
+                            }
+                        } else {
+                            if (height > MAX_SIZE) {
+                                width *= MAX_SIZE / height;
+                                height = MAX_SIZE;
+                            }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+
+                        // Fill white background (useful if png with transparency)
+                        if (ctx) {
+                            ctx.fillStyle = '#FFFFFF';
+                            ctx.fillRect(0, 0, width, height);
+                            ctx.drawImage(img, 0, 0, width, height);
+                        }
+
+                        // Compress to WebP at 80% quality for drastic size reduction
+                        resolve(canvas.toDataURL('image/webp', 0.8));
+                    };
+                    img.src = event.target?.result as string;
+                };
+                reader.readAsDataURL(file);
+            });
+        };
+
+        try {
+            const newImages = await Promise.all(filesToProcess.map(processImage));
+
+            setEditForm((prev: any) => ({
+                ...prev,
+                images: [...(prev.images || []), ...newImages]
+            }));
+
+            toast.success('Imagens carregadas super rápidas!', { id: 'upload-toast' });
+        } catch (error) {
+            toast.error('Erro ao processar as imagens', { id: 'upload-toast' });
+        } finally {
+            // Reset input
+            e.target.value = '';
+        }
     };
 
     const removeImage = (index: number) => {
