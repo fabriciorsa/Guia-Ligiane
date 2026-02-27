@@ -5,8 +5,8 @@ import { whatsappUrl } from '@/constants/contact';
 const Hero = () => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const images = [
-        "/images/barco_na_pomonga.webp",
-        "/images/tour-boat-1.webp" 
+        "/images/barco_na_pomonga.png",
+        "/images/tour-boat-1.jpg"
     ];
 
     useEffect(() => {
