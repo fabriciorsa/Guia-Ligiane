@@ -549,7 +549,7 @@ const Dashboard = () => {
 
 
 
-                            {dashboardTab === 'tours' ? (
+                            {dashboardTab === 'tours' && (
                                 <>
                                     {/* Tour Listing */}
                                     {filteredTours.length > 0 ? (
@@ -646,7 +646,9 @@ const Dashboard = () => {
                                         </div>
                                     )}
                                 </>
-                            ) : (
+                            )}
+
+                            {dashboardTab === 'testimonials' && (
                                 /* Testimonials Listing */
                                 <div className="bg-white rounded-[32px] shadow-sm border border-gray-100 overflow-hidden ring-1 ring-black/5">
                                     {testimonials.length > 0 ? (
