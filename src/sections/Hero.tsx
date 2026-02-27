@@ -1,25 +1,7 @@
-import { useState, useEffect } from 'react';
 import { ArrowRight, MapPin, Sailboat } from 'lucide-react';
 import { whatsappUrl } from '@/constants/contact';
 
 const Hero = () => {
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const images = [
-        "/images/barco_na_pomonga.webp",
-        "/images/tour-boat-1.webp"
-    ];
-
-    const placeholders = [
-        "#112330", // Deep river blue
-        "#8c4316"  // Warm sunset orange
-    ];
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentImageIndex((prev) => (prev + 1) % images.length);
-        }, 5000);
-        return () => clearInterval(interval);
-    }, []);
 
     const scrollToTours = () => {
         const toursSection = document.getElementById('passeios');
@@ -30,24 +12,21 @@ const Hero = () => {
 
     return (
         <section id="inicio" className="relative h-screen flex items-center justify-center overflow-hidden">
-            {/* Background Image Slider with Overlay */}
-            {images.map((img, index) => (
-                <div
-                    key={img}
-                    style={{ backgroundColor: placeholders[index] }}
-                    className={`absolute inset-0 z-0 transition-opacity duration-1000 ease-in-out ${index === currentImageIndex ? 'opacity-100' : 'opacity-0'}`}
-                >
-                    <img
-                        src={img}
-                        alt={`Passeio de Barco em Sergipe ${index + 1}`}
-                        className={`w-full h-full object-cover object-[50%_75%] transition-transform duration-[10000ms] ease-linear ${index === currentImageIndex ? 'scale-[1.15]' : 'scale-100'}`}
-                        loading={index === 0 ? "eager" : "lazy"}
-                        fetchPriority={index === 0 ? "high" : "auto"}
-                        decoding={index === 0 ? "sync" : "async"}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black/90" />
-                </div>
-            ))}
+            {/* Main Background Image - Single Image optimization */}
+            <div
+                style={{ backgroundColor: "#112330" }}
+                className="absolute inset-0 z-0 opacity-100"
+            >
+                <img
+                    src="/images/barco_na_pomonga.webp"
+                    alt="Passeio de Barco em Sergipe"
+                    className="w-full h-full object-cover object-[50%_75%]"
+                    loading="eager"
+                    fetchPriority="high"
+                    decoding="sync"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black/90" />
+            </div>
 
             {/* Content */}
             <div className="relative z-10 container mx-auto px-4 text-center text-white">
