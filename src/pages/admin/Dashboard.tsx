@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTours } from '../../context/TourContext';
-import { Edit, Trash, LogOut, Save, X, Calendar, Clock, Users, Star, MessageCircle, LayoutList, Eye, PenTool, Upload, Tag, RefreshCcw, Image as ImageIcon, MessageSquare } from 'lucide-react';
+import { Edit, Trash, LogOut, Save, X, Calendar, Clock, Users, Star, MessageCircle, LayoutList, Eye, PenTool, Upload, Tag, RefreshCcw, Image as ImageIcon, MessageSquare, AlertTriangle } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 import axios from 'axios';
 
@@ -17,6 +17,10 @@ const Dashboard = () => {
     const [dashboardTab, setDashboardTab] = useState<'tours' | 'testimonials' | 'gallery'>('tours');
     const [testimonials, setTestimonials] = useState<any[]>([]);
     const [galleryImages, setGalleryImages] = useState<any[]>([]);
+
+    // Modals
+    const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; type: 'gallery' | 'tour' | 'testimonial'; id: number; title?: string } | null>(null);
+    const [tourActions, setTourActions] = useState<any | null>(null);
 
     useEffect(() => {
         if (dashboardTab === 'testimonials') {
@@ -46,29 +50,40 @@ const Dashboard = () => {
         }
     };
 
-    const handleDeleteTestimonial = async (id: number) => {
-        if (confirm('Tem certeza que deseja excluir este depoimento? Isso refletirá imediatamente no site.')) {
-            try {
-                await axios.delete(`/api/testimonials/${id}`);
-                setTestimonials(testimonials.filter(t => t.id !== id));
-                toast.success('Depoimento excluído com sucesso');
-            } catch (error) {
-                console.error("Error deleting testimonial", error);
-                toast.error("Erro ao excluir o depoimento");
-            }
-        }
+    const handleDeleteTestimonial = (id: number) => {
+        setDeleteConfirm({ isOpen: true, type: 'testimonial', id });
     };
 
-    const handleDeleteGalleryImage = async (id: number) => {
-        if (confirm('Tem certeza que deseja excluir esta foto da galeria? O arquivo físico também será deletado do servidor.')) {
-            try {
-                await axios.delete(`/api/gallery/${id}`);
-                setGalleryImages(galleryImages.filter(img => img.id !== id));
+    const handleDeleteGalleryImage = (id: number) => {
+        setDeleteConfirm({ isOpen: true, type: 'gallery', id });
+    };
+
+    const handleDelete = (id: number, title?: string) => {
+        setDeleteConfirm({ isOpen: true, type: 'tour', id, title });
+        setTourActions(null);
+    };
+
+    const executeDelete = async () => {
+        if (!deleteConfirm) return;
+
+        try {
+            if (deleteConfirm.type === 'testimonial') {
+                await axios.delete(`/api/testimonials/${deleteConfirm.id}`);
+                setTestimonials(testimonials.filter(t => t.id !== deleteConfirm.id));
+                toast.success('Depoimento excluído com sucesso');
+            } else if (deleteConfirm.type === 'gallery') {
+                await axios.delete(`/api/gallery/${deleteConfirm.id}`);
+                setGalleryImages(galleryImages.filter(img => img.id !== deleteConfirm.id));
                 toast.success('Imagem da galeria excluída');
-            } catch (error) {
-                console.error("Error deleting gallery image", error);
-                toast.error("Erro ao excluir imagem");
+            } else if (deleteConfirm.type === 'tour') {
+                deleteTour(deleteConfirm.id);
+                toast.success('Passeio excluído com sucesso');
             }
+        } catch (error) {
+            console.error("Error executing delete", error);
+            toast.error("Erro ao excluir. Tente novamente.");
+        } finally {
+            setDeleteConfirm(null);
         }
     };
 
@@ -133,13 +148,6 @@ const Dashboard = () => {
     const handleLogout = () => {
         localStorage.removeItem('isAuthenticated');
         navigate('/login');
-    };
-
-    const handleDelete = (id: number) => {
-        if (confirm('Tem certeza que deseja excluir este passeio e todas as suas imagens físicas?')) {
-            deleteTour(id);
-            toast.success('Passeio excluído com sucesso');
-        }
     };
 
     const handleEdit = (tour: any) => {
@@ -555,7 +563,7 @@ const Dashboard = () => {
                                     {filteredTours.length > 0 ? (
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                                             {filteredTours.map((tour: any) => (
-                                                <div key={tour.id} className="bg-white rounded-[32px] shadow-sm border border-gray-100 overflow-hidden group hover:shadow-2xl hover:shadow-black/5 hover:-translate-y-1.5 transition-all duration-300 flex flex-col h-full ring-1 ring-black/5">
+                                                <div key={tour.id} onClick={() => setTourActions(tour)} className="cursor-pointer bg-white rounded-[32px] shadow-sm border border-gray-100 overflow-hidden group hover:shadow-2xl hover:shadow-black/5 hover:-translate-y-1.5 transition-all duration-300 flex flex-col h-full ring-1 ring-black/5">
                                                     <div className="relative h-60 overflow-hidden bg-gray-50/50 p-2">
                                                         <div className="w-full h-full rounded-[24px] overflow-hidden relative">
                                                             {tour.images?.length > 0 ? (
@@ -582,23 +590,6 @@ const Dashboard = () => {
                                                                         <Calendar className="w-3.5 h-3.5" /> {tour.date}
                                                                     </span>
                                                                 )}
-                                                            </div>
-
-                                                            {/* Hover Overlay Actions */}
-                                                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 backdrop-blur-[2px]">
-                                                                <button
-                                                                    onClick={() => handleEdit(tour)}
-                                                                    className="px-6 py-3 bg-white text-[#2A452B] font-black rounded-xl hover:bg-gray-100 transition-all shadow-lg active:scale-95 flex items-center gap-2"
-                                                                >
-                                                                    <Edit className="w-4 h-4" /> Editar
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => handleDelete(tour.id)}
-                                                                    className="w-12 h-12 bg-red-500 text-white rounded-xl flex items-center justify-center hover:bg-red-600 transition-all shadow-lg active:scale-95"
-                                                                    title="Excluir Permanentemente"
-                                                                >
-                                                                    <Trash className="w-5 h-5" />
-                                                                </button>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1067,6 +1058,68 @@ const Dashboard = () => {
                         </button>
                     </nav>
                 )}
+
+                {/* Action Bottom Sheet for Tours (Mobile & Desktop) */}
+                {tourActions && (
+                    <div className="fixed inset-0 z-[110] flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300" onClick={() => setTourActions(null)}>
+                        <div className="bg-white w-full max-w-sm rounded-[32px] p-6 shadow-2xl flex flex-col gap-3 slide-in-from-bottom-8 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
+                            <div className="text-center mb-2">
+                                <h3 className="font-black text-gray-900 text-xl line-clamp-1">{tourActions.title}</h3>
+                                <p className="text-xs text-gray-500 font-medium mt-1">O que deseja fazer com esta trilha?</p>
+                            </div>
+                            <button
+                                onClick={() => { handleEdit(tourActions); setTourActions(null); }}
+                                className="w-full py-4 bg-gray-50 text-[#2A452B] font-black rounded-xl hover:bg-gray-100 transition-all flex items-center justify-center gap-2"
+                            >
+                                <Edit className="w-5 h-5" /> Editar Trilha
+                            </button>
+                            <button
+                                onClick={() => { handleDelete(tourActions.id, tourActions.title); }}
+                                className="w-full py-4 bg-red-50 text-red-600 font-black rounded-xl hover:bg-red-100 transition-all flex items-center justify-center gap-2"
+                            >
+                                <Trash className="w-5 h-5" /> Excluir Permanentemente
+                            </button>
+                            <button
+                                onClick={() => setTourActions(null)}
+                                className="w-full py-4 mt-2 text-gray-500 font-bold rounded-xl hover:bg-gray-50 transition-all text-sm uppercase tracking-widest"
+                            >
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Custom Delete Confirmation Modal */}
+                {deleteConfirm && (
+                    <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+                        <div className="bg-white w-full max-w-sm rounded-[32px] p-8 shadow-2xl text-center flex flex-col items-center zoom-in-95 duration-300">
+                            <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-6 ring-8 ring-red-50/50">
+                                <AlertTriangle className="w-8 h-8" />
+                            </div>
+                            <h3 className="text-2xl font-black text-gray-900 mb-2">Atenção!</h3>
+                            <p className="text-gray-500 font-medium text-sm mb-8 leading-relaxed">
+                                {deleteConfirm.type === 'tour' && `Tem certeza que deseja excluir a trilha "${deleteConfirm.title}"? Esta ação removerá a trilha e suas fotos do servidor irreversivelmente.`}
+                                {deleteConfirm.type === 'gallery' && 'Tem certeza que deseja excluir esta foto da galeria? O arquivo físico também será excluído do Linux.'}
+                                {deleteConfirm.type === 'testimonial' && 'Tem certeza que deseja excluir este depoimento? A mudança refletirá imediatamente no site.'}
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-3 w-full">
+                                <button
+                                    onClick={() => setDeleteConfirm(null)}
+                                    className="flex-1 py-3.5 bg-gray-50 text-gray-600 font-bold rounded-xl hover:bg-gray-100 transition-all active:scale-95"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={executeDelete}
+                                    className="flex-1 py-3.5 bg-red-500 text-white font-black rounded-xl hover:bg-red-600 transition-all shadow-lg shadow-red-500/20 active:scale-95"
+                                >
+                                    Sim, Excluir
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
             </main>
         </div>
     );
