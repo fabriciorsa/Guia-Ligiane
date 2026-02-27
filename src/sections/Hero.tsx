@@ -5,8 +5,13 @@ import { whatsappUrl } from '@/constants/contact';
 const Hero = () => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const images = [
-        "/images/barco_na_pomonga.png",
-        "/images/tour-boat-1.jpg"
+        "/images/barco_na_pomonga.webp",
+        "/images/tour-boat-1.webp"
+    ];
+
+    const placeholders = [
+        "#112330", // Deep river blue
+        "#8c4316"  // Warm sunset orange
     ];
 
     useEffect(() => {
@@ -29,6 +34,7 @@ const Hero = () => {
             {images.map((img, index) => (
                 <div
                     key={img}
+                    style={{ backgroundColor: placeholders[index] }}
                     className={`absolute inset-0 z-0 transition-opacity duration-1000 ease-in-out ${index === currentImageIndex ? 'opacity-100' : 'opacity-0'}`}
                 >
                     <img
