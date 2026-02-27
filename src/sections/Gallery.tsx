@@ -1,19 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { ZoomIn, X, ChevronLeft, ChevronRight } from 'lucide-react';
-
-const galleryImages = [
-  { src: '/images/gallery-1.jpg', alt: 'Praia paradisíaca' },
-  { src: '/images/gallery-2.jpg', alt: 'Turistas no barco' },
-  { src: '/images/gallery-3.jpg', alt: 'Cachoeira na floresta' },
-  { src: '/images/gallery-4.jpg', alt: 'Pôr do sol no mar' },
-  { src: '/images/gallery-5.jpg', alt: 'Mergulho com peixes' },
-  { src: '/images/gallery-6.jpg', alt: 'Ilha formato de coração' },
-];
+import axios from 'axios';
 
 const Gallery = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
+  const [galleryImages, setGalleryImages] = useState<any[]>([]);
   const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    // Fetch gallery images from backend
+    axios.get('/api/gallery')
+      .then(res => setGalleryImages(res.data))
+      .catch(err => console.error("Error fetching gallery", err));
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -117,8 +117,8 @@ const Gallery = () => {
               style={{ transitionDelay: `${300 + index * 100}ms` }}
             >
               <img
-                src={image.src}
-                alt={image.alt}
+                src={image.image_url}
+                alt={`Galeria de fotos Trilhas de Sergipe ${index + 1}`}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
 
@@ -134,7 +134,7 @@ const Gallery = () => {
 
               {/* Caption */}
               <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                <p className="text-white text-sm font-medium">{image.alt}</p>
+                <p className="text-white text-sm font-medium">Ampliar Foto</p>
               </div>
             </div>
           ))}
@@ -177,13 +177,13 @@ const Gallery = () => {
           >
             <div className="relative aspect-[4/3] w-full">
               <img
-                src={galleryImages[selectedImage].src}
-                alt={galleryImages[selectedImage].alt}
+                src={galleryImages[selectedImage].image_url}
+                alt={`Imagem ${selectedImage + 1}`}
                 className="w-full h-full object-cover rounded-lg"
               />
             </div>
             <p className="text-white text-center mt-4 text-lg">
-              {galleryImages[selectedImage].alt}
+              Foto da Galeria
             </p>
           </div>
 

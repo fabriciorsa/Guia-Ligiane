@@ -14,14 +14,27 @@ const Dashboard = () => {
     const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
     const [previewImageIndex, setPreviewImageIndex] = useState(0);
 
-    const [dashboardTab, setDashboardTab] = useState<'tours' | 'testimonials'>('tours');
+    const [dashboardTab, setDashboardTab] = useState<'tours' | 'testimonials' | 'gallery'>('tours');
     const [testimonials, setTestimonials] = useState<any[]>([]);
+    const [galleryImages, setGalleryImages] = useState<any[]>([]);
 
     useEffect(() => {
         if (dashboardTab === 'testimonials') {
             fetchTestimonials();
+        } else if (dashboardTab === 'gallery') {
+            fetchGallery();
         }
     }, [dashboardTab]);
+
+    const fetchGallery = async () => {
+        try {
+            const response = await axios.get('/api/gallery');
+            setGalleryImages(response.data);
+        } catch (error) {
+            console.error("Error fetching gallery", error);
+            toast.error("Erro ao carregar galeria");
+        }
+    };
 
     const fetchTestimonials = async () => {
         try {
@@ -43,6 +56,77 @@ const Dashboard = () => {
                 console.error("Error deleting testimonial", error);
                 toast.error("Erro ao excluir o depoimento");
             }
+        }
+    };
+
+    const handleDeleteGalleryImage = async (id: number) => {
+        if (confirm('Tem certeza que deseja excluir esta foto da galeria? O arquivo físico também será deletado do servidor.')) {
+            try {
+                await axios.delete(`/api/gallery/${id}`);
+                setGalleryImages(galleryImages.filter(img => img.id !== id));
+                toast.success('Imagem da galeria excluída');
+            } catch (error) {
+                console.error("Error deleting gallery image", error);
+                toast.error("Erro ao excluir imagem");
+            }
+        }
+    };
+
+    const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+
+        toast.loading('Otimizando e enviando foto para a galeria...', { id: 'gallery-upload' });
+
+        const processImage = (file: File): Promise<string> => {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        const MAX_SIZE = 1200;
+                        if (width > height) {
+                            if (width > MAX_SIZE) {
+                                height *= MAX_SIZE / width;
+                                width = MAX_SIZE;
+                            }
+                        } else {
+                            if (height > MAX_SIZE) {
+                                width *= MAX_SIZE / height;
+                                height = MAX_SIZE;
+                            }
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        if (ctx) {
+                            ctx.fillStyle = '#FFFFFF';
+                            ctx.fillRect(0, 0, width, height);
+                            ctx.drawImage(img, 0, 0, width, height);
+                        }
+                        resolve(canvas.toDataURL('image/webp', 0.8));
+                    };
+                    img.src = event.target?.result as string;
+                };
+                reader.readAsDataURL(file);
+            });
+        };
+
+        try {
+            for (let i = 0; i < files.length; i++) {
+                const base64 = await processImage(files[i]);
+                const response = await axios.post('/api/gallery', { image: base64 });
+                setGalleryImages(prev => [{ id: response.data.id, image_url: response.data.image_url }, ...prev]);
+            }
+            toast.success('Foto recebida com sucesso!', { id: 'gallery-upload' });
+        } catch (error) {
+            console.error(error);
+            toast.error('Erro ao enviar foto.', { id: 'gallery-upload' });
+        } finally {
+            e.target.value = '';
         }
     };
 
@@ -388,6 +472,12 @@ const Dashboard = () => {
                         <MessageSquare className={`w-5 h-5 transition-transform ${dashboardTab === 'testimonials' ? 'text-white/90 group-hover:scale-110' : ''}`} />
                         <span>Avaliações</span>
                     </button>
+                    <button
+                        onClick={() => setDashboardTab('gallery')}
+                        className={`flex items-center gap-3 w-full px-4 py-3.5 rounded-xl font-bold transition-all shadow-sm group ${dashboardTab === 'gallery' ? 'bg-[#2A452B] text-white shadow-[#2A452B]/20' : 'text-gray-600 hover:bg-gray-100 hover:text-[#2A452B]'}`}>
+                        <ImageIcon className={`w-5 h-5 transition-transform ${dashboardTab === 'gallery' ? 'text-white/90 group-hover:scale-110' : ''}`} />
+                        <span>Galeria de Fotos</span>
+                    </button>
                 </nav>
 
                 <div className="p-4 m-4 mt-auto rounded-2xl bg-gradient-to-br from-[#E8E0D5]/40 to-[#E8E0D5]/10 ring-1 ring-black/5 flex items-center gap-3">
@@ -427,14 +517,17 @@ const Dashboard = () => {
 
                             {/* Page Header */}
                             <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5 bg-white p-6 md:p-8 rounded-[32px] shadow-sm border border-gray-100">
+                                {/* Header Switcher Texts */}
                                 <div>
                                     <h2 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight">
-                                        {dashboardTab === 'tours' ? 'Catálogo de Trilhas' : 'Avaliações de Clientes'}
+                                        {dashboardTab === 'tours' ? 'Catálogo de Trilhas' : dashboardTab === 'testimonials' ? 'Avaliações de Clientes' : 'Galeria de Fotos'}
                                     </h2>
                                     <p className="text-gray-500 mt-1 md:mt-2 font-medium text-sm md:text-base">
                                         {dashboardTab === 'tours'
                                             ? 'Controle total sobre as opções oferecidas aos seus clientes no site principal.'
-                                            : 'Gerencie os depoimentos deixados pelos aventureiros que já viajaram com você.'
+                                            : dashboardTab === 'testimonials'
+                                                ? 'Gerencie os depoimentos deixados pelos aventureiros que já viajaram com você.'
+                                                : 'Suba fotos com qualidade superior e de forma comprimida, enviando direto para a página Galeria.'
                                         }
                                     </p>
                                 </div>
@@ -609,6 +702,57 @@ const Dashboard = () => {
                                             </div>
                                             <h3 className="text-xl font-black text-gray-900 mb-1">Nenhum depoimento.</h3>
                                             <p className="text-sm max-w-sm">Ainda não há nenhum depoimento cadastrado em seu banco de dados.</p>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {dashboardTab === 'gallery' && (
+                                <div className="bg-white rounded-[32px] p-6 shadow-sm border border-gray-100 ring-1 ring-black/5">
+                                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-gray-100 pb-4">
+                                        <div>
+                                            <h3 className="text-xl font-black text-gray-900 flex items-center gap-2"><ImageIcon className="w-5 h-5 text-[#2A452B]" /> Suas Fotos na Nuvem</h3>
+                                            <p className="text-sm text-gray-500 font-medium">Fotos pesadas já são comprimidas em fundo de tela mantendo a beleza de Sergipe.</p>
+                                        </div>
+                                        <label className="shrink-0">
+                                            <div className="px-6 py-3 bg-[#2A452B] text-white font-black rounded-xl cursor-pointer hover:bg-[#1f3320] transition-all shadow-lg shadow-[#2A452B]/20 flex items-center justify-center gap-2 active:scale-95">
+                                                <Upload className="w-4 h-4" /> Enviar Novas Fotos
+                                            </div>
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                multiple
+                                                className="hidden"
+                                                onChange={handleGalleryUpload}
+                                            />
+                                        </label>
+                                    </div>
+
+                                    {galleryImages.length > 0 ? (
+                                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                                            {galleryImages.map((img) => (
+                                                <div key={img.id} className="relative aspect-square group rounded-[20px] overflow-hidden border border-gray-100 shadow-sm bg-gray-50">
+                                                    <img src={img.image_url} alt={`Gallery ${img.id}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+
+                                                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
+                                                        <button
+                                                            onClick={() => handleDeleteGalleryImage(img.id)}
+                                                            className="w-12 h-12 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-transform active:scale-95"
+                                                            title="Excluir da Galeria"
+                                                        >
+                                                            <Trash className="w-5 h-5" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="p-16 text-center text-gray-500 flex flex-col items-center">
+                                            <div className="w-20 h-20 bg-gray-50 rounded-[20px] flex items-center justify-center mb-4 text-gray-300">
+                                                <ImageIcon className="w-8 h-8" />
+                                            </div>
+                                            <h3 className="text-xl font-black text-gray-900 mb-1">Galeria Vazia.</h3>
+                                            <p className="text-sm">Envie a sua primeira foto em alta qualidade clicando no botão acima.</p>
                                         </div>
                                     )}
                                 </div>
