@@ -5,8 +5,8 @@ import { whatsappUrl } from '@/constants/contact';
 const Hero = () => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const images = [
-        "/images/barco_na_pomonga.png",
-        "/images/tour-boat-1.webp" // Fallback to existing image since generation failed
+        "/images/barco_na_pomonga.webp",
+        "/images/tour-boat-1.webp" 
     ];
 
     useEffect(() => {
@@ -35,6 +35,9 @@ const Hero = () => {
                         src={img}
                         alt={`Passeio de Barco em Sergipe ${index + 1}`}
                         className={`w-full h-full object-cover object-[50%_75%] transition-transform duration-[10000ms] ease-linear ${index === currentImageIndex ? 'scale-[1.15]' : 'scale-100'}`}
+                        loading={index === 0 ? "eager" : "lazy"}
+                        fetchPriority={index === 0 ? "high" : "auto"}
+                        decoding={index === 0 ? "sync" : "async"}
                     />
                     <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black/90" />
                 </div>
