@@ -307,8 +307,9 @@ const Dashboard = () => {
         };
         toast.loading('Preparando novo registro...', { id: 'new-toast' });
 
-        addTour(newTour).then(() => {
+        addTour(newTour).then((newId) => {
             toast.success('Rascunho criado. Preencha os detalhes e insira fotos.', { id: 'new-toast' });
+            handleEdit({ ...newTour, id: newId });
         }).catch(() => {
             toast.error('Falha ao criar rascunho', { id: 'new-toast' });
         });

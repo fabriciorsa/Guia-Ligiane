@@ -19,7 +19,7 @@ export interface Tour {
 
 interface TourContextType {
     tours: Tour[];
-    addTour: (tour: Tour) => Promise<void>;
+    addTour: (tour: Tour) => Promise<number>;
     updateTour: (id: number, tour: Partial<Tour>) => Promise<void>;
     deleteTour: (id: number) => Promise<void>;
     isLoading: boolean;
@@ -53,11 +53,12 @@ export const TourProvider = ({ children }: { children: ReactNode }) => {
         fetchTours();
     }, []);
 
-    const addTour = async (tour: Tour) => {
+    const addTour = async (tour: Tour): Promise<number> => {
         try {
-            await axios.post(API_URL, tour);
+            const response = await axios.post(API_URL, tour);
             // Assuming backend returns the new ID, but we just refetch to be safe
             await fetchTours();
+            return response.data.id;
         } catch (err) {
             console.error("Erro ao adicionar passeio:", err);
             throw err;
