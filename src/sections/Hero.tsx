@@ -18,7 +18,7 @@ const Hero = () => {
                 className="absolute inset-0 z-0 opacity-100"
             >
                 <img
-                    src="/images/barco_na_pomonga.webp"
+                    src="/images/hero_fast.jpg"
                     alt="Passeio de Barco em Sergipe"
                     className="w-full h-full object-cover object-[50%_75%]"
                     loading="eager"
