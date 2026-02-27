@@ -552,6 +552,11 @@ const Dashboard = () => {
                                             className="block w-full pl-11 pr-4 py-3.5 border border-gray-200 rounded-2xl leading-5 bg-gray-50/50 placeholder-gray-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-[#C68D5D]/50 focus:border-[#C68D5D] transition-all font-bold text-gray-900"
                                         />
                                     </div>
+                                    {dashboardTab === 'tours' && (
+                                        <button onClick={handleAddNew} className="flex items-center justify-center gap-2 px-6 py-3.5 bg-[#2A452B] text-white font-black rounded-xl shadow-lg shadow-[#2A452B]/20 hover:bg-[#1f3320] transition-all active:scale-95 whitespace-nowrap shrink-0">
+                                            <PenTool className="w-5 h-5 flex-shrink-0" /> Nova Trilha
+                                        </button>
+                                    )}
                                 </div>
                             </div>
 
@@ -641,52 +646,47 @@ const Dashboard = () => {
 
                             {dashboardTab === 'testimonials' && (
                                 /* Testimonials Listing */
-                                <div className="bg-white rounded-[32px] shadow-sm border border-gray-100 overflow-hidden ring-1 ring-black/5">
+                                <div className="bg-white/50 rounded-[32px] overflow-hidden">
                                     {testimonials.length > 0 ? (
-                                        <div className="overflow-x-auto">
-                                            <table className="w-full text-left border-collapse">
-                                                <thead>
-                                                    <tr className="bg-gray-50/50 border-b border-gray-100">
-                                                        <th className="p-5 font-black text-gray-900 text-sm">Cliente</th>
-                                                        <th className="p-5 font-black text-gray-900 text-sm">Comentário</th>
-                                                        <th className="p-5 font-black text-gray-900 text-sm w-24">Avaliação</th>
-                                                        <th className="p-5 font-black text-gray-900 text-sm w-32">Data</th>
-                                                        <th className="p-5 font-black text-gray-900 text-sm w-20 text-center">Ações</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="divide-y divide-gray-100">
-                                                    {testimonials.map((testimonial) => (
-                                                        <tr key={testimonial.id} className="hover:bg-gray-50/30 transition-colors">
-                                                            <td className="p-5">
-                                                                <p className="font-bold text-gray-900">{testimonial.name}</p>
-                                                                <p className="text-xs text-gray-500 mt-0.5">{testimonial.city_role}</p>
-                                                            </td>
-                                                            <td className="p-5">
-                                                                <p className="text-sm border-l-2 border-[#2A452B]/20 pl-3 text-gray-600 line-clamp-2" title={testimonial.text}>"{testimonial.text}"</p>
-                                                            </td>
-                                                            <td className="p-5">
-                                                                <div className="flex gap-0.5">
-                                                                    {[...Array(testimonial.rating || 5)].map((_, i) => (
-                                                                        <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                                                                    ))}
-                                                                </div>
-                                                            </td>
-                                                            <td className="p-5 text-sm font-medium text-gray-500">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                            {testimonials.map((testimonial) => (
+                                                <div key={testimonial.id} className="bg-white rounded-[24px] shadow-sm ring-1 ring-black/5 p-6 flex flex-col relative group hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                                                    <div className="flex justify-between items-start mb-4">
+                                                        <div className="pr-4">
+                                                            <p className="font-bold text-gray-900 text-lg leading-tight">{testimonial.name}</p>
+                                                            <p className="text-[10px] text-[#C68D5D] mt-1 uppercase tracking-wider font-black">{testimonial.city_role}</p>
+                                                        </div>
+                                                        <div className="flex items-center mt-1">
+                                                            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                                                            <span className="text-sm font-black ml-1 text-gray-700">{testimonial.rating || 5}.0</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="flex-1 relative mb-6">
+                                                        <p className="text-gray-600 font-medium italic text-sm leading-relaxed relative z-10 pl-2">
+                                                            "{testimonial.text}"
+                                                        </p>
+                                                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#2A452B]/20 rounded-full" />
+                                                    </div>
+
+                                                    <div className="flex items-center justify-between pt-4 border-t border-gray-100/80 mt-auto">
+                                                        <div className="flex items-center gap-2 text-gray-400">
+                                                            <Calendar className="w-3.5 h-3.5" />
+                                                            <span className="text-xs font-bold uppercase tracking-widest hidden sm:inline">Avaliado em:</span>
+                                                            <span className="text-xs font-bold bg-gray-50 px-2 py-1 rounded">
                                                                 {new Date(testimonial.created_at || new Date()).toLocaleDateString('pt-BR')}
-                                                            </td>
-                                                            <td className="p-5 text-center">
-                                                                <button
-                                                                    onClick={() => handleDeleteTestimonial(testimonial.id)}
-                                                                    className="w-10 h-10 bg-red-50 text-red-500 rounded-xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-sm active:scale-95 inline-flex"
-                                                                    title="Excluir Depoimento"
-                                                                >
-                                                                    <Trash className="w-5 h-5" />
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
+                                                            </span>
+                                                        </div>
+                                                        <button
+                                                            onClick={() => handleDeleteTestimonial(testimonial.id)}
+                                                            className="w-10 h-10 bg-red-50 text-red-500 rounded-xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-sm active:scale-95 shrink-0"
+                                                            title="Excluir Depoimento"
+                                                        >
+                                                            <Trash className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
                                         </div>
                                     ) : (
                                         <div className="p-16 text-center text-gray-500 flex flex-col items-center">
