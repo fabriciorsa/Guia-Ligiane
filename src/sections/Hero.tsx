@@ -20,7 +20,7 @@ const Hero = () => {
                 <img
                     src="/images/hero_fast.jpg"
                     alt="Passeio de Barco em Sergipe"
-                    className="w-full h-full object-cover object-[50%_75%]"
+                    className="w-full h-full object-cover object-[25%_75%] sm:object-[50%_75%]"
                     loading="eager"
                     fetchPriority="high"
                     decoding="sync"
