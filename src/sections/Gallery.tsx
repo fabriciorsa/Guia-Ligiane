@@ -182,9 +182,6 @@ const Gallery = () => {
                 className="w-full h-full object-cover rounded-lg"
               />
             </div>
-            <p className="text-white text-center mt-4 text-lg">
-              Foto da Galeria
-            </p>
           </div>
 
           {/* Thumbnails */}
