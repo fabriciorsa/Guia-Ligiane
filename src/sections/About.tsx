@@ -2,10 +2,10 @@ import { CheckCircle2, MapPin } from 'lucide-react';
 
 const About = () => {
     const features = [
-        'Guias locais experientes e credenciados',
-        'Veículos 4x4 modernos e confortáveis',
+        'Guia local experiente e credenciada',
+        'Passeios de Tototó e barcos',
         'Roteiros exclusivos e personalizados',
-        'Atendimento humanizado 24h'
+        'Excursões de ônibus'
     ];
 
     return (
@@ -40,15 +40,16 @@ const About = () => {
                         </div>
 
                         <h2 className="text-4xl md:text-5xl font-extrabold text-[#2C2416] mb-8 leading-[1.15]">
-                            Especialistas em Criar <br />
+                            Especialista em criar <br />
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#365A38] to-[#5C8D60]">
-                                Memórias Inesquecíveis
+                                Momentos Mágicos
                             </span>
                         </h2>
 
                         <p className="text-[#5D5446] text-lg mb-8 leading-relaxed">
-                            Há mais de uma década, a <strong className="text-[#365A38]">Trilhas de Sergipe</strong> conecta viajantes às belezas do nosso estado.
-                            Não oferecemos apenas transporte; oferecemos uma imersão completa na cultura, na natureza e na magia deste paraíso.
+                            A <strong className="text-[#365A38]">Tototur</strong> nasce da paixão pelos rios,
+                            pelas ilhas e pela missão de conectar pessoas a natureza e a cultura local  a bordo de um Tototó pelos rios de Sergipe.
+                            Cada viagem uma experiência única e transformadora.
                         </p>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8 mb-10">

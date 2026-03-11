@@ -56,7 +56,7 @@ const Tours = () => {
 
     const generateWhatsAppLink = (tour: Tour) => {
         const formattedPrice = String(tour.price).replace('.', ',');
-        const message = `Olá! Tenho interesse no roteiro "${tour.title}" para o dia ${tour.date}.\nValor do site: R$ ${formattedPrice}.\nPoderiam me passar mais informações?`;
+        const message = `Olá! Tenho interesse no roteiro "${tour.title}" para o dia ${tour.date}.\nValor no site: R$ ${formattedPrice}.\nPoderia me passar mais informações?`;
         return whatsappUrl(message);
     };
 
@@ -77,12 +77,7 @@ const Tours = () => {
                 <div className="text-center max-w-2xl mx-auto mb-16">
                     <div
                         className={`inline-flex items-center gap-2 mb-4 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
-                            }`}
-                    >
-                        <div className="w-8 h-px bg-brand-terracotta" />
-                        <span className="text-brand-terracotta font-semibold text-sm uppercase tracking-wider">
-                            Agenda de Março
-                        </span>
+                            }`}>
                         <div className="w-8 h-px bg-brand-terracotta" />
                     </div>
 
@@ -99,7 +94,7 @@ const Tours = () => {
                             }`}
                         style={{ transitionDelay: '200ms' }}
                     >
-                        Garanta seu lugar nos roteiros exclusivos deste mês
+                        Garanta seu lugar nos roteiros exclusivos
                     </p>
                 </div>
 
@@ -272,7 +267,7 @@ const Tours = () => {
 
                                 {/* Features */}
                                 <div className="mb-8">
-                                    <h3 className="text-lg font-semibold text-brand-text-dark mb-3 border-l-4 border-brand-terracotta pl-3">O que está incluído</h3>
+                                    <h3 className="text-lg font-semibold text-brand-text-dark mb-3 border-l-4 border-brand-terracotta pl-3">O que está incluso</h3>
                                     <div className="grid sm:grid-cols-2 gap-3">
                                         {selectedTour.features.map((feature, idx) => (
                                             <div key={idx} className="flex items-center gap-2 text-brand-brown-dark">

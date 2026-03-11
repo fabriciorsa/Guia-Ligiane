@@ -32,18 +32,17 @@ const Hero = () => {
             <div className="relative z-10 container mx-auto px-4 text-center text-white">
                 <div className="inline-flex items-center gap-2 bg-black/30 backdrop-blur-md px-6 py-2 rounded-full mb-6 border border-white/10 animate-fade-in shadow-2xl ring-1 ring-white/20">
                     <MapPin className="w-4 h-4 text-[#C68D5D]" />
-                    <span className="text-sm font-bold tracking-widest uppercase text-shadow-md">Aracaju - Sergipe</span>
+                    <span className="text-sm font-bold tracking-widest uppercase text-shadow-md">Barra dos Coqueiros – Aracaju – Sergipe</span>
                 </div>
 
                 <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight animate-slide-up drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)]">
-                    Descubra o Paraíso <br />
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C68D5D] via-[#F5F0E8] to-[#C68D5D] animate-gradient drop-shadow-md">
-                        Em Sergipe
+                        Tototur
                     </span>
                 </h1>
 
                 <p className="text-lg sm:text-xl md:text-2xl text-white mb-8 md:mb-10 max-w-3xl mx-auto leading-relaxed animate-slide-up drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-semibold px-4" style={{ animationDelay: '0.2s' }}>
-                    Conheça as belezas naturais de Sergipe com quem entende do assunto. Experiências únicas em roteiros personalizados.
+                    Turismo, cultura e consciência ambiental a bordo de um Tototó, navegando por ilhas inimagináveis entre os rios Sergipe e Pomonga.
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up px-4" style={{ animationDelay: '0.4s' }}>

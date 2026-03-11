@@ -102,7 +102,7 @@ const Gallery = () => {
               }`}
             style={{ transitionDelay: '200ms' }}
           >
-            Explore visualmente o que espera por você
+            Imaginem-se nestes paraísos
           </p>
         </div>
 
