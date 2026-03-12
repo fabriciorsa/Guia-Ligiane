@@ -23,7 +23,7 @@ const About = () => {
 
                         <div className="relative z-10 rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white/50 transform transition-transform duration-700 hover:scale-[1.02]">
                             <img
-                                src="/images/guia_ligiane.jpeg"
+                                src="/images/about-img.webp"
                                 alt="Guia Ligiane"
                                 className="w-full h-auto object-cover"
                             />
