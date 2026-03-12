@@ -172,13 +172,13 @@ const Gallery = () => {
 
           {/* Image Container - Responsive size */}
           <div
-            className="w-full max-w-2xl px-12 sm:px-20 mx-auto flex justify-center items-center"
+            className="w-full max-w-7xl px-4 sm:px-12 mx-auto flex justify-center items-center h-full"
             onClick={(e) => e.stopPropagation()}
           >
             <img
               src={galleryImages[selectedImage].image_url}
               alt={`Imagem ${selectedImage + 1}`}
-              className="max-w-full max-h-[80vh] object-contain rounded-xl shadow-2xl"
+              className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl"
             />
           </div>
 
