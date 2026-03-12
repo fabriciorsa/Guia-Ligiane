@@ -18,14 +18,14 @@ const Hero = () => {
                 className="absolute inset-0 z-0 opacity-100"
             >
                 <img
-                    src="/images/hero_tototo.png"
+                    src="/images/hero_tototo.webp"
                     alt="Passeio de Barco Tototó em Sergipe"
                     className="w-full h-full object-cover object-[50%_50%] sm:object-[50%_75%]"
                     loading="eager"
                     fetchPriority="high"
                     decoding="sync"
                 />
-                <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black/90" />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/70" />
             </div>
 
             {/* Content */}
