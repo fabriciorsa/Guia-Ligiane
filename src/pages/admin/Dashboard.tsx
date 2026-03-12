@@ -759,7 +759,7 @@ const Dashboard = () => {
                 {isEditing && (
                     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 lg:p-6 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
                         {/* Box Modal */}
-                        <div className="bg-[#F8F9FA] w-full h-[100dvh] lg:h-[95vh] max-w-[1700px] lg:rounded-[32px] shadow-2xl flex flex-col overflow-hidden relative ring-1 ring-white/10 slide-in-from-bottom-6">
+                        <div className="bg-[#F8F9FA] w-full h-[100dvh] lg:h-[95vh] max-w-[1300px] lg:rounded-[32px] shadow-2xl flex flex-col overflow-hidden relative ring-1 ring-white/10 slide-in-from-bottom-6">
 
                             {/* Modal Header Premium */}
                             <div className="bg-white border-b border-gray-100 px-4 sm:px-6 py-4 lg:py-5 flex justify-between items-center z-20 shadow-sm relative shrink-0">
@@ -1063,7 +1063,7 @@ const Dashboard = () => {
                 {/* Action Bottom Sheet for Tours (Mobile & Desktop) */}
                 {tourActions && (
                     <div className="fixed inset-0 z-[110] flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300" onClick={() => setTourActions(null)}>
-                        <div className="bg-white w-full max-w-sm rounded-[32px] p-6 shadow-2xl flex flex-col gap-3 slide-in-from-bottom-8 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
+                        <div className="bg-white w-full max-w-[340px] rounded-[32px] p-6 shadow-2xl flex flex-col gap-3 slide-in-from-bottom-8 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
                             <div className="text-center mb-2">
                                 <h3 className="font-black text-gray-900 text-xl line-clamp-1">{tourActions.title}</h3>
                                 <p className="text-xs text-gray-500 font-medium mt-1">O que deseja fazer com esta trilha?</p>
@@ -1093,7 +1093,7 @@ const Dashboard = () => {
                 {/* Custom Delete Confirmation Modal */}
                 {deleteConfirm && (
                     <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-                        <div className="bg-white w-full max-w-sm rounded-[32px] p-8 shadow-2xl text-center flex flex-col items-center zoom-in-95 duration-300">
+                        <div className="bg-white w-full max-w-[340px] rounded-[32px] p-8 shadow-2xl text-center flex flex-col items-center zoom-in-95 duration-300">
                             <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-6 ring-8 ring-red-50/50">
                                 <AlertTriangle className="w-8 h-8" />
                             </div>
