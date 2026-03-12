@@ -45,10 +45,10 @@ const Hero = () => {
                     Turismo, cultura e consciência ambiental a bordo de um Tototó, navegando por ilhas inimagináveis entre os rios Sergipe e Pomonga.
                 </p>
 
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up px-4" style={{ animationDelay: '0.4s' }}>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up w-full max-w-sm sm:max-w-none mx-auto" style={{ animationDelay: '0.4s' }}>
                     <button
                         onClick={scrollToTours}
-                        className="w-full sm:w-auto group bg-[#C68D5D] hover:bg-[#A87246] text-white px-8 py-4 rounded-full font-bold text-lg transition-all transform hover:scale-105 shadow-xl flex items-center justify-center gap-2"
+                        className="w-full sm:w-auto group bg-[#C68D5D] hover:bg-[#A87246] text-white px-8 py-4 rounded-full font-bold text-lg transition-all transform hover:scale-105 shadow-xl flex items-center justify-center gap-2 border-2 border-transparent"
                     >
                         Ver Nossos Passeios
                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
