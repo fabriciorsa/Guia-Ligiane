@@ -170,18 +170,16 @@ const Gallery = () => {
             <ChevronRight className="w-6 h-6" />
           </button>
 
-          {/* Image Container - Fixed size */}
+          {/* Image Container - Responsive size */}
           <div
-            className="w-full max-w-4xl px-20"
+            className="w-full max-w-2xl px-12 sm:px-20 mx-auto flex justify-center items-center"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="relative aspect-[4/3] w-full">
-              <img
-                src={galleryImages[selectedImage].image_url}
-                alt={`Imagem ${selectedImage + 1}`}
-                className="w-full h-full object-cover rounded-lg"
-              />
-            </div>
+            <img
+              src={galleryImages[selectedImage].image_url}
+              alt={`Imagem ${selectedImage + 1}`}
+              className="max-w-full max-h-[80vh] object-contain rounded-xl shadow-2xl"
+            />
           </div>
 
           {/* Thumbnails */}
