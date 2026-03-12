@@ -18,9 +18,9 @@ const Hero = () => {
                 className="absolute inset-0 z-0 opacity-100"
             >
                 <img
-                    src="/images/hero_fast.jpg"
-                    alt="Passeio de Barco em Sergipe"
-                    className="w-full h-full object-cover object-[25%_75%] sm:object-[50%_75%]"
+                    src="/images/hero_tototo.png"
+                    alt="Passeio de Barco Tototó em Sergipe"
+                    className="w-full h-full object-cover object-[50%_50%] sm:object-[50%_75%]"
                     loading="eager"
                     fetchPriority="high"
                     decoding="sync"
@@ -30,14 +30,14 @@ const Hero = () => {
 
             {/* Content */}
             <div className="relative z-10 container mx-auto px-4 text-center text-white">
-                <div className="inline-flex items-center gap-2 bg-black/30 backdrop-blur-md px-6 py-2 rounded-full mb-6 border border-white/10 animate-fade-in shadow-2xl ring-1 ring-white/20">
-                    <MapPin className="w-4 h-4 text-[#C68D5D]" />
-                    <span className="text-sm font-bold tracking-widest uppercase text-shadow-md">Barra dos Coqueiros – Aracaju – Sergipe</span>
+                <div className="inline-flex items-center gap-2 bg-black/30 backdrop-blur-md px-4 sm:px-6 py-2 rounded-full mb-4 sm:mb-6 border border-white/10 animate-fade-in shadow-2xl ring-1 ring-white/20 max-w-full">
+                    <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-[#C68D5D] shrink-0" />
+                    <span className="text-[10px] sm:text-sm font-bold tracking-widest uppercase text-shadow-md truncate">Barra dos Coqueiros – Aracaju – Sergipe</span>
                 </div>
 
-                <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight animate-slide-up drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)]">
+                <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black mb-6 leading-tight animate-slide-up drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)]">
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C68D5D] via-[#F5F0E8] to-[#C68D5D] animate-gradient drop-shadow-md">
-                        Tototur
+                        TOTOTUR
                     </span>
                 </h1>
 
