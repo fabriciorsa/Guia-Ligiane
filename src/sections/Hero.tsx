@@ -45,19 +45,23 @@ const Hero = () => {
                     Turismo, cultura e consciência ambiental a bordo de um Tototó, navegando por ilhas inimagináveis entre os rios Sergipe e Pomonga.
                 </p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-slide-up w-full max-w-[320px] sm:max-w-[580px] mx-auto" style={{ animationDelay: '0.4s' }}>
-                    <button
-                        onClick={scrollToTours}
-                        className="w-full h-[56px] flex items-center justify-center gap-2 bg-[#C68D5D] hover:bg-[#A87246] text-white rounded-full font-bold text-[17px] transition-all active:scale-95 shadow-xl border-2 border-[#C68D5D] group"
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up w-full max-w-[320px] sm:max-w-none mx-auto" style={{ animationDelay: '0.4s' }}>
+                    <a
+                        href="#passeios"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            scrollToTours();
+                        }}
+                        className="w-full sm:w-[280px] h-[56px] flex items-center justify-center gap-2 bg-[#C68D5D] hover:bg-[#A87246] text-white rounded-full font-bold text-[17px] transition-all active:scale-95 shadow-xl border-2 border-[#C68D5D] group appearance-none"
                     >
                         Ver Nossos Passeios
                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                    </button>
+                    </a>
                     <a
                         href={whatsappUrl()}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-full h-[56px] flex items-center justify-center bg-transparent hover:bg-white text-white hover:text-[#2C2416] border-2 border-white rounded-full font-bold text-[17px] transition-all active:scale-95 shadow-xl"
+                        className="w-full sm:w-[280px] h-[56px] flex items-center justify-center bg-transparent hover:bg-white text-white hover:text-[#2C2416] border-2 border-white rounded-full font-bold text-[17px] transition-all active:scale-95 shadow-xl appearance-none"
                     >
                         Falar no WhatsApp
                     </a>
