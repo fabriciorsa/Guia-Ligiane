@@ -45,10 +45,10 @@ const Hero = () => {
                     Turismo, cultura e consciência ambiental a bordo de um Tototó, navegando por ilhas inimagináveis entre os rios Sergipe e Pomonga.
                 </p>
 
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up w-full max-w-[320px] sm:max-w-none mx-auto px-4" style={{ animationDelay: '0.4s' }}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-slide-up w-full max-w-[320px] sm:max-w-[580px] mx-auto" style={{ animationDelay: '0.4s' }}>
                     <button
                         onClick={scrollToTours}
-                        className="w-full sm:w-auto sm:min-w-[280px] h-[56px] group bg-[#C68D5D] hover:bg-[#A87246] text-white rounded-full font-bold text-lg transition-all transform hover:scale-105 shadow-xl flex items-center justify-center gap-2 border-2 border-[#C68D5D] hover:border-[#A87246]"
+                        className="w-full h-[56px] flex items-center justify-center gap-2 bg-[#C68D5D] hover:bg-[#A87246] text-white rounded-full font-bold text-[17px] transition-all active:scale-95 shadow-xl border-2 border-[#C68D5D] group"
                     >
                         Ver Nossos Passeios
                         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -57,7 +57,7 @@ const Hero = () => {
                         href={whatsappUrl()}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-full sm:w-auto sm:min-w-[280px] h-[56px] border-2 border-white text-white hover:bg-white hover:text-[#2C2416] rounded-full font-bold text-lg transition-all transform hover:scale-105 shadow-xl backdrop-blur-sm flex items-center justify-center"
+                        className="w-full h-[56px] flex items-center justify-center bg-transparent hover:bg-white text-white hover:text-[#2C2416] border-2 border-white rounded-full font-bold text-[17px] transition-all active:scale-95 shadow-xl"
                     >
                         Falar no WhatsApp
                     </a>
