@@ -1,4 +1,4 @@
-import { ArrowRight, MapPin, Sailboat } from 'lucide-react';
+import { MapPin, Sailboat } from 'lucide-react';
 import { whatsappUrl } from '@/constants/contact';
 
 const Hero = () => {
@@ -45,23 +45,22 @@ const Hero = () => {
                     Turismo, cultura e consciência ambiental a bordo de um Tototó, navegando por ilhas inimagináveis entre os rios Sergipe e Pomonga.
                 </p>
 
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up w-full max-w-[320px] sm:max-w-none mx-auto" style={{ animationDelay: '0.4s' }}>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up w-full max-w-[340px] sm:max-w-none mx-auto" style={{ animationDelay: '0.4s' }}>
                     <a
                         href="#passeios"
                         onClick={(e) => {
                             e.preventDefault();
                             scrollToTours();
                         }}
-                        className="w-full sm:w-[280px] h-[56px] flex items-center justify-center gap-2 bg-[#C68D5D] hover:bg-[#A87246] text-white rounded-full font-bold text-[17px] transition-all active:scale-95 shadow-xl border-2 border-[#C68D5D] group appearance-none"
+                        className="w-full sm:w-[280px] h-[60px] flex items-center justify-center bg-[#C68D5D] hover:bg-[#A87246] text-white rounded-xl font-bold tracking-wide text-[17px] sm:text-lg transition-all active:scale-95 shadow-[0_10px_40px_rgba(0,0,0,0.3)] border border-white/10"
                     >
                         Ver Nossos Passeios
-                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </a>
                     <a
                         href={whatsappUrl()}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-full sm:w-[280px] h-[56px] flex items-center justify-center bg-transparent hover:bg-white text-white hover:text-[#2C2416] border-2 border-white rounded-full font-bold text-[17px] transition-all active:scale-95 shadow-xl appearance-none"
+                        className="w-full sm:w-[280px] h-[60px] flex items-center justify-center bg-black/40 backdrop-blur-md text-white border border-white/50 hover:bg-white hover:text-black rounded-xl font-bold tracking-wide text-[17px] sm:text-lg transition-all active:scale-95 shadow-[0_10px_40px_rgba(0,0,0,0.3)]"
                     >
                         Falar no WhatsApp
                     </a>
