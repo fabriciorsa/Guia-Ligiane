@@ -45,21 +45,21 @@ const Hero = () => {
                     Turismo, cultura e consciência ambiental a bordo de um Tototó, navegando por ilhas inimagináveis entre os rios Sergipe e Pomonga.
                 </p>
 
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up w-full max-w-sm sm:max-w-none mx-auto" style={{ animationDelay: '0.4s' }}>
+                <div className="flex flex-row items-center justify-center gap-2 sm:gap-4 animate-slide-up w-full max-w-[420px] sm:max-w-none mx-auto px-2 sm:px-4" style={{ animationDelay: '0.4s' }}>
                     <button
                         onClick={scrollToTours}
-                        className="w-full sm:w-auto group bg-[#C68D5D] hover:bg-[#A87246] text-white px-8 py-4 rounded-full font-bold text-lg transition-all transform hover:scale-105 shadow-xl flex items-center justify-center gap-2 border-2 border-transparent"
+                        className="flex-1 group bg-[#C68D5D] hover:bg-[#A87246] text-white px-1 sm:px-8 py-3.5 sm:py-4 rounded-full font-bold text-[10px] min-[360px]:text-xs sm:text-lg transition-all hover:scale-105 shadow-xl flex items-center justify-center gap-1 sm:gap-2 border-2 border-transparent whitespace-nowrap"
                     >
-                        Ver Nossos Passeios
-                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        <span className="truncate">Nossos Passeios</span>
+                        <ArrowRight className="w-3.5 h-3.5 sm:w-5 sm:h-5 shrink-0 group-hover:translate-x-1 transition-transform" />
                     </button>
                     <a
                         href={whatsappUrl()}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-full sm:w-auto px-8 py-4 rounded-full font-bold text-lg border-2 border-white text-white hover:bg-white hover:text-[#2C2416] transition-all shadow-lg hover:shadow-xl backdrop-blur-sm flex items-center justify-center"
+                        className="flex-1 px-1 sm:px-8 py-3.5 sm:py-4 rounded-full font-bold text-[10px] min-[360px]:text-xs sm:text-lg border-2 border-white text-white hover:bg-white hover:text-[#2C2416] transition-all shadow-lg hover:shadow-xl backdrop-blur-sm flex items-center justify-center whitespace-nowrap truncate"
                     >
-                        Falar no WhatsApp
+                        Falar WhatsApp
                     </a>
                 </div>
             </div>
