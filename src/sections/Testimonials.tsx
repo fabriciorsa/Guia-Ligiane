@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader } from '../components/ui/dialog';
 import axios from 'axios';
 import { toast } from 'sonner';
+import { whatsappUrl } from '../constants/contact';
 
 const initialTestimonials = [
   {
@@ -84,6 +85,10 @@ const Testimonials = () => {
     try {
       await axios.post('/api/testimonials', formData);
       toast.success('Depoimento enviado com sucesso! Obrigado!');
+      
+      const message = `*Novo Depoimento no Site TOTOTUR!*\n\n*Nome:* ${formData.name}\n*De:* ${formData.city_role}\n*Nota:* ${formData.rating} Estrelas ⭐\n*Comentário:* "${formData.text}"`;
+      window.open(whatsappUrl(message), '_blank');
+
       setFormData({ name: '', city_role: '', text: '', rating: 5 });
       setIsModalOpen(false);
       fetchTestimonials();
