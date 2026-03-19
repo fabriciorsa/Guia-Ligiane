@@ -1,13 +1,13 @@
 /**
- * Dados de contato centralizados - Trilhas de Sergipe
+ * Dados de contato centralizados - TOTOTUR
  * Atualize aqui para refletir em todo o site.
  */
 export const CONTACT = {
-  brandName: 'Trilhas de Sergipe',
-  whatsapp: '5598992265003',
-  whatsappFormatted: '(98) 99226-5003',
-  email: 'contato@trilhasdesergipe.com.br',
-  address: 'Aracaju, Sergipe - Brasil',
+  brandName: 'TOTOTUR',
+  whatsapp: '557998534408',
+  whatsappFormatted: '(79) 9853-4408',
+  instagram: 'https://www.instagram.com/ilhaspasseiodebarco.tototo/',
+  address: 'Barra dos Coqueiros – Aracaju – Sergipe',
   businessHours: 'Atendimento: 8h às 18h',
 } as const;
 

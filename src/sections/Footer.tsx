@@ -1,4 +1,4 @@
-import { Anchor, Instagram, Facebook, MessageCircle, Mail, MapPin, Phone } from 'lucide-react';
+import { Anchor, Instagram, MessageCircle, MapPin, Phone } from 'lucide-react';
 import { CONTACT, whatsappUrl } from '@/constants/contact';
 
 const Footer = () => {
@@ -18,8 +18,7 @@ const Footer = () => {
   ];
 
   const socialLinks = [
-    { icon: Instagram, href: '#', label: 'Instagram' },
-    { icon: Facebook, href: '#', label: 'Facebook' },
+    { icon: Instagram, href: CONTACT.instagram, label: 'Instagram' },
     { icon: MessageCircle, href: whatsappUrl(), label: 'WhatsApp' },
   ];
 
@@ -143,12 +142,14 @@ const Footer = () => {
                 </a>
               </li>
               <li className="flex items-center gap-3">
-                <Mail className="w-5 h-5 text-[#A68B6A] flex-shrink-0" />
+                <Instagram className="w-5 h-5 text-[#A68B6A] flex-shrink-0" />
                 <a
-                  href={`mailto:${CONTACT.email}`}
+                  href={CONTACT.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-white/70 text-sm hover:text-[#A68B6A] transition-colors"
                 >
-                  {CONTACT.email}
+                  Siga nosso Instagram
                 </a>
               </li>
             </ul>
@@ -163,9 +164,14 @@ const Footer = () => {
           <p className="text-white/50 text-sm text-center md:text-left">
             © {currentYear} {CONTACT.brandName}. Todos os direitos reservados.
           </p>
-          <p className="text-white/50 text-sm flex items-center gap-1">
-            Desenvolvido com <span className="text-red-400">♥</span> para aventureiros
-          </p>
+          <div className="text-white/50 text-sm flex flex-col items-center md:items-end gap-1">
+            <p className="flex items-center gap-1">
+              Desenvolvido pela <a href="https://rsasolutions.com.br" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors underline underline-offset-2">rsasolutions.com.br</a>
+            </p>
+            <a href="https://www.instagram.com/rsasolutionsbr" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:text-white transition-colors">
+              <Instagram className="w-3.5 h-3.5" /> @rsasolutionsbr
+            </a>
+          </div>
         </div>
       </div>
 

@@ -461,7 +461,7 @@ const Dashboard = () => {
             {/* Sidebar Desktop */}
             <aside className="w-[280px] bg-white border-r border-gray-200 hidden md:flex flex-col z-20 shadow-sm relative shrink-0">
                 <div className="px-8 pt-8 pb-6 flex items-center justify-center border-b border-gray-100/50 mix-blend-multiply">
-                    <img src="/images/logo-hd.webp" alt="Trilhas de Sergipe Logo" className="w-[120px] object-contain drop-shadow-sm" />
+                    <img src="/images/logo-hd.webp" alt="TOTOTUR Logo" className="w-[120px] object-contain drop-shadow-sm" />
                 </div>
 
                 <div className="px-8 py-5">

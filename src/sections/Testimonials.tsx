@@ -10,7 +10,7 @@ const initialTestimonials = [
     id: 1,
     name: 'Maria Silva',
     city_role: 'São Paulo, SP',
-    text: 'A experiência com a Trilhas de Sergipe foi transformadora. Não foi apenas um passeio, foi um mergulho profundo na beleza natural da ilha com um atendimento impecável.',
+    text: 'A experiência com a TOTOTUR foi transformadora. Não foi apenas um passeio, foi um mergulho profundo na beleza natural da ilha com um atendimento impecável.',
     rating: 5,
   },
   {

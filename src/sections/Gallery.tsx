@@ -118,7 +118,7 @@ const Gallery = () => {
             >
               <img
                 src={image.image_url}
-                alt={`Galeria de fotos Trilhas de Sergipe ${index + 1}`}
+                alt={`Galeria de fotos TOTOTUR ${index + 1}`}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
 
