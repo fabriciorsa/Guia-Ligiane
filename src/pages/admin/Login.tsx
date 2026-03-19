@@ -1,20 +1,21 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sailboat, Lock } from 'lucide-react';
+import { Sailboat, Lock, User } from 'lucide-react';
 
 const Login = () => {
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
-        // Senha temporária simples para o MVP
-        if (password === 'admin123') {
+        
+        if (username === 'ligiane' && password === 'Tototur2026@') {
             localStorage.setItem('isAuthenticated', 'true');
             navigate('/admin/dashboard');
         } else {
-            setError('Senha incorreta');
+            setError('Usuário ou senha incorretos');
         }
     };
 
@@ -30,6 +31,21 @@ const Login = () => {
                 </div>
 
                 <form onSubmit={handleLogin} className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-[#5C4A3A] mb-1">Usuário</label>
+                        <div className="relative">
+                            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#A68B6A]" />
+                            <input
+                                type="text"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                className="w-full pl-10 pr-4 py-3 rounded-lg border border-[#E8E0D5] focus:outline-none focus:ring-2 focus:ring-[#365A38]/50 text-[#2C2416]"
+                                placeholder="Digite seu usuário"
+                                autoCapitalize="none"
+                            />
+                        </div>
+                    </div>
+
                     <div>
                         <label className="block text-sm font-medium text-[#5C4A3A] mb-1">Senha de Acesso</label>
                         <div className="relative">
