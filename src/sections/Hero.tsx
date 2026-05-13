@@ -37,7 +37,7 @@ const Hero = () => {
 
                 <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black mb-6 leading-tight animate-slide-up drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)]">
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C68D5D] via-[#F5F0E8] to-[#C68D5D] animate-gradient drop-shadow-md">
-                        TOTOTUR
+                        ABENÇOA TUR
                     </span>
                 </h1>
 

@@ -1,12 +1,12 @@
 /**
- * Dados de contato centralizados - TOTOTUR
+ * Dados de contato centralizados - ABENÇOA TUR
  * Atualize aqui para refletir em todo o site.
  */
 export const CONTACT = {
-  brandName: 'TOTOTUR',
+  brandName: 'ABENÇOA TUR',
   whatsapp: '557998534408',
   whatsappFormatted: '(79) 9853-4408',
-  instagram: 'https://www.instagram.com/ilhaspasseiodebarco.tototo/',
+  instagram: 'https://www.instagram.com/abencoa.tur/',
   address: 'Barra dos Coqueiros – Aracaju – Sergipe',
   businessHours: 'Atendimento: 8h às 18h',
 } as const;

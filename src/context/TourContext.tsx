@@ -39,8 +39,14 @@ export const TourProvider = ({ children }: { children: ReactNode }) => {
         try {
             setIsLoading(true);
             const response = await axios.get(API_URL);
-            setTours(response.data);
-            setError(null);
+            const data = response.data;
+            if (Array.isArray(data)) {
+                setTours(data);
+                setError(null);
+            } else {
+                setTours([]);
+                console.error("API não retornou um array:", data);
+            }
         } catch (err) {
             console.error("Erro ao buscar passeios:", err);
             setError("Falha ao carregar os passeios do banco de dados.");

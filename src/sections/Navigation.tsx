@@ -31,7 +31,7 @@ const Navigation = ({ scrollY }: NavigationProps) => {
         >
             <img
                 src="/images/logo-hd.webp"
-                alt="Logo TOTOTUR"
+                alt="Logo ABENÇOA TUR"
                 className="h-16 md:h-24 w-auto object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-md"
             />
         </a>

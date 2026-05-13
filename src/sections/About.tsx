@@ -47,7 +47,7 @@ const About = () => {
                         </h2>
 
                         <p className="text-[#5D5446] text-lg mb-8 leading-relaxed">
-                            A <strong className="text-[#365A38]">Tototur</strong> nasce da paixão pelos rios,
+                            A <strong className="text-[#365A38]">Abençoa Tur</strong> nasce da paixão pelos rios,
                             pelas ilhas e pela missão de conectar pessoas a natureza e a cultura local  a bordo de um Tototó pelos rios de Sergipe.
                             Cada viagem uma experiência única e transformadora.
                         </p>
