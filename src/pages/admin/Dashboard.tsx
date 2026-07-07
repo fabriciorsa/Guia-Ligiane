@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTours } from '../../context/TourContext';
-import { Edit, Trash, LogOut, Save, X, Calendar, Clock, Users, Star, MessageCircle, LayoutList, Eye, PenTool, Upload, Tag, RefreshCcw, Image as ImageIcon, MessageSquare, AlertTriangle } from 'lucide-react';
+import { Edit, Trash, LogOut, Save, X, Calendar, Clock, Users, Star, MessageCircle, LayoutList, Eye, PenTool, Upload, Tag, RefreshCcw, Image as ImageIcon, MessageSquare, AlertTriangle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 import axios from 'axios';
 
@@ -17,6 +17,7 @@ const Dashboard = () => {
     const [dashboardTab, setDashboardTab] = useState<'tours' | 'testimonials' | 'gallery'>('tours');
     const [testimonials, setTestimonials] = useState<any[]>([]);
     const [galleryImages, setGalleryImages] = useState<any[]>([]);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
     // Modals
     const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; type: 'gallery' | 'tour' | 'testimonial'; id: number; title?: string } | null>(null);
@@ -147,6 +148,7 @@ const Dashboard = () => {
 
     const handleLogout = () => {
         localStorage.removeItem('isAuthenticated');
+        localStorage.removeItem('token');
         navigate('/login');
     };
 
@@ -459,54 +461,80 @@ const Dashboard = () => {
             <Toaster position="top-right" />
 
             {/* Sidebar Desktop */}
-            <aside className="w-[280px] bg-white border-r border-gray-200 hidden md:flex flex-col z-20 shadow-sm relative shrink-0">
-                <div className="px-8 pt-8 pb-6 flex items-center justify-center border-b border-gray-100/50 mix-blend-multiply">
-                    <img src="/images/logo-hd.webp" alt="TOTOTUR Logo" className="w-[120px] object-contain drop-shadow-sm" />
+            <aside className={`bg-white border-r border-gray-200 hidden md:flex flex-col z-20 shadow-sm relative shrink-0 transition-all duration-300 ${isSidebarCollapsed ? 'w-[88px]' : 'w-[280px]'}`}>
+                <div className={`pt-8 pb-6 flex items-center border-b border-gray-100/50 mix-blend-multiply relative ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-8 justify-center'}`}>
+                    {isSidebarCollapsed ? (
+                        <div className="w-12 h-12 bg-[#2A452B]/5 rounded-xl flex items-center justify-center">
+                            <img src="/images/logo-hd.webp" alt="Logo" className="w-[32px] object-contain drop-shadow-sm" />
+                        </div>
+                    ) : (
+                        <img src="/images/logo-hd.webp" alt="TOTOTUR Logo" className="w-[120px] object-contain drop-shadow-sm transition-all" />
+                    )}
+                    
+                    <button 
+                        onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} 
+                        className="absolute -right-3.5 top-10 bg-white border border-gray-200 w-7 h-7 flex items-center justify-center rounded-full shadow-md text-gray-400 hover:text-[#2A452B] hover:border-[#2A452B] transition-all z-50"
+                    >
+                        {isSidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+                    </button>
                 </div>
 
-                <div className="px-8 py-5">
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Painel Administrativo</p>
+                <div className={`py-5 transition-all ${isSidebarCollapsed ? 'px-2 text-center opacity-0 h-0 overflow-hidden py-0' : 'px-8 opacity-100 h-auto'}`}>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap overflow-hidden">Painel Administrativo</p>
                 </div>
 
-                <nav className="flex-1 px-4 space-y-2 mt-4">
+                <nav className={`flex-1 space-y-2 mt-4 ${isSidebarCollapsed ? 'px-2' : 'px-4'}`}>
                     <button
                         onClick={() => setDashboardTab('tours')}
-                        className={`flex items-center gap-3 w-full px-4 py-3.5 rounded-xl font-bold transition-all shadow-sm group ${dashboardTab === 'tours' ? 'bg-[#2A452B] text-white shadow-[#2A452B]/20' : 'text-gray-600 hover:bg-gray-100 hover:text-[#2A452B]'}`}>
-                        <LayoutList className={`w-5 h-5 transition-transform ${dashboardTab === 'tours' ? 'text-white/90 group-hover:scale-110' : ''}`} />
-                        <span>Catálogo de Trilhas</span>
+                        className={`flex items-center gap-3 w-full py-3.5 rounded-xl font-bold transition-all shadow-sm group ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-4'} ${dashboardTab === 'tours' ? 'bg-[#2A452B] text-white shadow-[#2A452B]/20' : 'text-gray-600 hover:bg-gray-100 hover:text-[#2A452B]'}`}
+                        title={isSidebarCollapsed ? 'Catálogo de Trilhas' : ''}
+                    >
+                        <LayoutList className={`w-5 h-5 shrink-0 transition-transform ${dashboardTab === 'tours' ? 'text-white/90 group-hover:scale-110' : ''}`} />
+                        {!isSidebarCollapsed && <span className="whitespace-nowrap overflow-hidden">Catálogo de Trilhas</span>}
                     </button>
                     <button
                         onClick={() => setDashboardTab('testimonials')}
-                        className={`flex items-center gap-3 w-full px-4 py-3.5 rounded-xl font-bold transition-all shadow-sm group ${dashboardTab === 'testimonials' ? 'bg-[#2A452B] text-white shadow-[#2A452B]/20' : 'text-gray-600 hover:bg-gray-100 hover:text-[#2A452B]'}`}>
-                        <MessageSquare className={`w-5 h-5 transition-transform ${dashboardTab === 'testimonials' ? 'text-white/90 group-hover:scale-110' : ''}`} />
-                        <span>Avaliações</span>
+                        className={`flex items-center gap-3 w-full py-3.5 rounded-xl font-bold transition-all shadow-sm group ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-4'} ${dashboardTab === 'testimonials' ? 'bg-[#2A452B] text-white shadow-[#2A452B]/20' : 'text-gray-600 hover:bg-gray-100 hover:text-[#2A452B]'}`}
+                        title={isSidebarCollapsed ? 'Avaliações' : ''}
+                    >
+                        <MessageSquare className={`w-5 h-5 shrink-0 transition-transform ${dashboardTab === 'testimonials' ? 'text-white/90 group-hover:scale-110' : ''}`} />
+                        {!isSidebarCollapsed && <span className="whitespace-nowrap overflow-hidden">Avaliações</span>}
                     </button>
                     <button
                         onClick={() => setDashboardTab('gallery')}
-                        className={`flex items-center gap-3 w-full px-4 py-3.5 rounded-xl font-bold transition-all shadow-sm group ${dashboardTab === 'gallery' ? 'bg-[#2A452B] text-white shadow-[#2A452B]/20' : 'text-gray-600 hover:bg-gray-100 hover:text-[#2A452B]'}`}>
-                        <ImageIcon className={`w-5 h-5 transition-transform ${dashboardTab === 'gallery' ? 'text-white/90 group-hover:scale-110' : ''}`} />
-                        <span>Galeria de Fotos</span>
+                        className={`flex items-center gap-3 w-full py-3.5 rounded-xl font-bold transition-all shadow-sm group ${isSidebarCollapsed ? 'px-0 justify-center' : 'px-4'} ${dashboardTab === 'gallery' ? 'bg-[#2A452B] text-white shadow-[#2A452B]/20' : 'text-gray-600 hover:bg-gray-100 hover:text-[#2A452B]'}`}
+                        title={isSidebarCollapsed ? 'Galeria de Fotos' : ''}
+                    >
+                        <ImageIcon className={`w-5 h-5 shrink-0 transition-transform ${dashboardTab === 'gallery' ? 'text-white/90 group-hover:scale-110' : ''}`} />
+                        {!isSidebarCollapsed && <span className="whitespace-nowrap overflow-hidden">Galeria de Fotos</span>}
                     </button>
                 </nav>
 
-                <div className="p-4 m-4 mt-auto rounded-2xl bg-gradient-to-br from-[#E8E0D5]/40 to-[#E8E0D5]/10 ring-1 ring-black/5 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm border border-gray-100">
+                <div className={`mt-auto rounded-2xl bg-gradient-to-br from-[#E8E0D5]/40 to-[#E8E0D5]/10 ring-1 ring-black/5 flex items-center gap-3 transition-all ${isSidebarCollapsed ? 'm-2 p-2 justify-center' : 'm-4 p-4'}`}>
+                    <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm border border-gray-100" title={error ? 'Banco de Dados Offline' : 'Sistema Operacional'}>
                         <RefreshCcw className={`w-5 h-5 ${error ? 'text-red-500' : 'text-green-600'} ${isLoading ? 'animate-spin' : ''}`} />
                     </div>
-                    <div>
-                        <p className="text-[11px] font-black text-gray-900 uppercase">Status do Sistema</p>
-                        <div className="flex items-center gap-1.5 opacity-80">
-                            <div className={`w-1.5 h-1.5 rounded-full shadow-sm ${error ? 'bg-red-500 shadow-red-500' : 'bg-green-500 shadow-green-500'}`}></div>
-                            <p className={`text-[10px] font-bold ${error ? 'text-red-600' : 'text-gray-600'}`}>
-                                {error ? 'Banco de Dados Offline' : isLoading ? 'Conectando...' : 'Sistema Operacional'}
-                            </p>
+                    {!isSidebarCollapsed && (
+                        <div className="overflow-hidden">
+                            <p className="text-[11px] font-black text-gray-900 uppercase whitespace-nowrap">Status do Sistema</p>
+                            <div className="flex items-center gap-1.5 opacity-80">
+                                <div className={`w-1.5 h-1.5 rounded-full shadow-sm shrink-0 ${error ? 'bg-red-500 shadow-red-500' : 'bg-green-500 shadow-green-500'}`}></div>
+                                <p className={`text-[10px] font-bold whitespace-nowrap ${error ? 'text-red-600' : 'text-gray-600'}`}>
+                                    {error ? 'Banco de Dados Offline' : isLoading ? 'Conectando...' : 'Sistema Operacional'}
+                                </p>
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
 
-                <div className="p-4 border-t border-gray-100">
-                    <button onClick={handleLogout} className="flex items-center justify-center gap-2 w-full px-4 py-3.5 text-red-500 hover:bg-red-50 hover:text-red-600 rounded-xl font-bold transition-colors">
-                        <LogOut className="w-5 h-5" /> Sair com Segurança
+                <div className={`border-t border-gray-100 transition-all ${isSidebarCollapsed ? 'p-2' : 'p-4'}`}>
+                    <button 
+                        onClick={handleLogout} 
+                        className={`flex items-center justify-center gap-2 w-full py-3.5 text-red-500 hover:bg-red-50 hover:text-red-600 rounded-xl font-bold transition-colors ${isSidebarCollapsed ? 'px-0' : 'px-4'}`}
+                        title="Sair com Segurança"
+                    >
+                        <LogOut className="w-5 h-5 shrink-0" /> 
+                        {!isSidebarCollapsed && <span className="whitespace-nowrap overflow-hidden">Sair com Segurança</span>}
                     </button>
                 </div>
             </aside>

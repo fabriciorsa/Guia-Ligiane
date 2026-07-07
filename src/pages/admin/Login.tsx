@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sailboat, Lock, User } from 'lucide-react';
+import axios from 'axios';
 
 const Login = () => {
     const [username, setUsername] = useState('');
@@ -8,14 +9,24 @@ const Login = () => {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError('');
         
-        if (username === 'ligiane' && password === 'Tototur2026@') {
+        try {
+            const response = await axios.post('/api/auth/login', { username, password });
+            const { token } = response.data;
+            
+            localStorage.setItem('token', token);
             localStorage.setItem('isAuthenticated', 'true');
+            
             navigate('/admin/dashboard');
-        } else {
-            setError('Usuário ou senha incorretos');
+        } catch (err: any) {
+            if (err.response && err.response.data && err.response.data.error) {
+                setError(err.response.data.error);
+            } else {
+                setError('Erro ao conectar com o servidor.');
+            }
         }
     };
 

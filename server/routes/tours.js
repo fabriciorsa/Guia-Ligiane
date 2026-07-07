@@ -3,6 +3,7 @@ import pool from '../config/db.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { authMiddleware } from '../middleware/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -82,7 +83,7 @@ router.get('/', async (req, res) => {
 });
 
 // POST new tour
-router.post('/', async (req, res) => {
+router.post('/', authMiddleware, async (req, res) => {
     try {
         const { title, subtitle, description, fullDescription, duration, date, price, images, features, maxPeople } = req.body;
 
@@ -111,7 +112,7 @@ router.post('/', async (req, res) => {
 });
 
 // PUT update tour
-router.put('/:id', async (req, res) => {
+router.put('/:id', authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
         const { title, subtitle, description, fullDescription, duration, date, price, images, features, maxPeople } = req.body;
@@ -157,7 +158,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // DELETE tour
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
 

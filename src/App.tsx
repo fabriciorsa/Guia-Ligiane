@@ -7,7 +7,8 @@ import { TourProvider } from './context/TourContext';
 // Componente para Proteger Rotas
 const PrivateRoute = ({ children }: { children: React.ReactElement }) => {
     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-    return isAuthenticated ? children : <Navigate to="/login" />;
+    const token = localStorage.getItem('token');
+    return isAuthenticated && token ? children : <Navigate to="/login" />;
 };
 
 function App() {

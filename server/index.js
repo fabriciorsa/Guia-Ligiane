@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import tourRoutes from './routes/tours.js';
 import testimonialsRoutes from './routes/testimonials.js';
 import galleryRoutes from './routes/gallery.js';
+import authRoutes from './routes/auth.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -18,6 +19,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/tours', tourRoutes);
 app.use('/api/testimonials', testimonialsRoutes);
 app.use('/api/gallery', galleryRoutes);

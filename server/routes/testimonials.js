@@ -1,5 +1,6 @@
 import express from 'express';
 import pool from '../config/db.js';
+import { authMiddleware } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -29,7 +30,7 @@ router.get('/', async (req, res) => {
 });
 
 // POST new testimonial
-router.post('/', async (req, res) => {
+router.post('/', authMiddleware, async (req, res) => {
     try {
         const { name, city_role, text, rating } = req.body;
 
@@ -52,7 +53,7 @@ router.post('/', async (req, res) => {
 });
 
 // DELETE testimonial
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authMiddleware, async (req, res) => {
     try {
         const { id } = req.params;
 

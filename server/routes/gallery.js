@@ -3,6 +3,7 @@ import pool from '../config/db.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { authMiddleware } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -72,7 +73,7 @@ router.get('/', async (req, res) => {
 });
 
 // POST a new gallery image
-router.post('/', async (req, res) => {
+router.post('/', authMiddleware, async (req, res) => {
     const { image } = req.body;
 
     if (!image) {
@@ -97,7 +98,7 @@ router.post('/', async (req, res) => {
 });
 
 // DELETE a gallery image
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authMiddleware, async (req, res) => {
     const { id } = req.params;
     try {
         const [rows] = await pool.query('SELECT * FROM gallery WHERE id = ?', [id]);
